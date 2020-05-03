@@ -6,7 +6,7 @@ defaults: &defaults
 go_defaults: &go_defaults
   <<: *defaults
   docker:
-    - image: circleci/go:latest
+    - image: circleci/golang:latest
 
 jobs:
   checkout-repo:
