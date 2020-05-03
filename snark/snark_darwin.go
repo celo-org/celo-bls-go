@@ -1,4 +1,4 @@
-// +build darwin,386
+// +build darwin,386,!ios
 
 package snark
 
