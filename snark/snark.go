@@ -1,7 +1,6 @@
 package snark
 
 /*
-#cgo LDFLAGS: -L../../target/release -lepoch_snark -ldl -lm
 #include "snark.h"
 */
 import "C"
