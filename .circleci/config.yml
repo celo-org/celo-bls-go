@@ -2,9 +2,6 @@ version: 2
 
 defaults: &defaults
   working_directory: ~/app
-  branches:
-    ignore:
-      - master
 
 go_defaults: &go_defaults
   <<: *defaults
