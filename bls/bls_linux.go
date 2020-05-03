@@ -1,4 +1,4 @@
-// +build !android
+// +build !android,!musl
 
 package bls
 
