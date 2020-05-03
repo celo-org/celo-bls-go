@@ -48,4 +48,3 @@ workflows:
       - go-tests:
           requires:
             - checkout-repo
-            - go-tests
