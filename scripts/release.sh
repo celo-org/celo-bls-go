@@ -47,10 +47,10 @@ cargo lipo --release --targets=aarch64-apple-ios,armv7-apple-ios,x86_64-apple-io
 
 popd 
 
-DIRECTORY=./go/libs
+DIRECTORY=./libs
 if [[ -d "$DIRECTORY" ]]
 then
-    echo "$DIRECTORY exists on your filesystem."
+    echo "$DIRECTORY exists on your filesystem. Delete it and run the script again."
     exit
 fi
 
@@ -64,5 +64,10 @@ do
   if [[ -f ${LIB_PATH} ]]
   then
     cp ${COMPILE_DIR}/$platform/release/libepoch_snark.a ${PLATFORM_DIR}
+  fi
+  WINDOWS_LIB_PATH=${COMPILE_DIR}/$platform/release/epoch_snark.lib
+  if [[ -f ${WINDOWS_LIB_PATH} ]]
+  then
+    cp ${COMPILE_DIR}/$platform/release/epoch_snark.lib ${PLATFORM_DIR}
   fi
 done
