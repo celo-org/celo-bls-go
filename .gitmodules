@@ -1,0 +1,3 @@
+[submodule "bls-zexe"]
+	path = bls-zexe
+	url = https://github.com/celo-org/bls-zexe

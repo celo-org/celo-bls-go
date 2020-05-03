@@ -1,0 +1,53 @@
+version: 2
+
+defaults: &defaults
+  working_directory: ~/app
+  branches:
+    ignore:
+      - master
+
+go_defaults: &go_defaults
+  <<: *defaults
+  docker:
+    - image: circleci/golang:latest
+
+jobs:
+  checkout-repo:
+    <<: *go_defaults
+    steps:
+      - checkout
+      - attach_workspace:
+          at: ~/app
+      - persist_to_workspace:
+          root: .
+          paths: .
+
+  go-tests:
+    <<: *go_defaults
+    working_directory: ~/app
+    docker:
+      - image: circleci/golang:latest
+    steps:
+      - attach_workspace:
+          at: ~/app
+      - run: 
+          name: Run Tests
+          command: |
+            cd ~/app
+            go test ./bls ./snark
+      - run:
+          name: Build and run example
+          command: |
+            cd ~/app/
+            cd ./cmd
+            go build bls_example.go
+            ./bls_example
+
+workflows:
+  version: 2
+  run-tests:
+    jobs:
+      - checkout-repo
+      - go-tests:
+          requires:
+            - checkout-repo
