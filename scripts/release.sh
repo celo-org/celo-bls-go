@@ -21,7 +21,6 @@ rustup target add aarch64-linux-android
 rustup target add armv7-linux-androideabi
 rustup target add i686-linux-android
 rustup target add x86_64-linux-android
-rustup target add aarch64-apple-ios x86_64-apple-ios
 rustup target add x86_64-unknown-linux-musl
 
 cargo build --release --target=aarch64-linux-android --lib
@@ -45,7 +44,7 @@ cargo build --target=x86_64-unknown-linux-musl --release
 
 rustup default 1.41.0
 rustup target add i686-apple-darwin
-rustup target add armv7-apple-ios i386-apple-ios
+rustup target add armv7-apple-ios i386-apple-ios aarch64-apple-ios x86_64-apple-ios
 cargo build --target=i686-apple-darwin --release
 cargo lipo --release --targets=aarch64-apple-ios,armv7-apple-ios,x86_64-apple-ios,i386-apple-ios
 
