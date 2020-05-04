@@ -46,9 +46,17 @@ jobs:
   bundle-libs:
     <<: *rust_defaults
     working_directory: ~/app
+    macos:
+      xcode: 11.4.0
     steps:
       - attach_workspace:
           at: ~/app
+      - run:
+          name: Install rustup
+          command: curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+      - run:
+          name: Install Rust 1.41
+          command: rustup install 1.42.0 && rustup install 1.41.0
       - run:
           name: Build release libs
           command: |
