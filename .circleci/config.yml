@@ -36,7 +36,7 @@ jobs:
           name: Build and run example
           command: |
             cd ~/app/
-            cd ./example
+            cd ./examples
             go build bls_example.go
             ./bls_example
       - run:
