@@ -3,6 +3,11 @@ version: 2
 defaults: &defaults
   working_directory: ~/app
 
+rust_defaults: &rust_defaults
+  <<: *defaults
+  docker:
+    - image: circleci/rust:latest
+
 go_defaults: &go_defaults
   <<: *defaults
   docker:
@@ -22,8 +27,6 @@ jobs:
   go-tests:
     <<: *go_defaults
     working_directory: ~/app
-    docker:
-      - image: circleci/golang:latest
     steps:
       - attach_workspace:
           at: ~/app
@@ -39,12 +42,18 @@ jobs:
             cd ./examples
             go build bls_example.go
             ./bls_example
+
+  bundle-libs:
+    <<: *rust_defaults
+    working_directory: ~/app
+    steps:
+      - attach_workspace:
+          at: ~/app
       - run:
           name: Build release libs
           command: |
             ./scripts/release.sh
             tar czf libs.tar.gz libs
-
       - store_artifacts:
           path: ~/app/libs.tar.gz
 
