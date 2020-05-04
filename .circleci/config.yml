@@ -66,5 +66,5 @@ workflows:
           requires:
             - checkout-repo
       - bundle-libs:
-        requires:
-          - go-tests
+          requires:
+            - go-tests
