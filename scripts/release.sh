@@ -2,6 +2,8 @@
 
 pushd bls-zexe
 
+cargo install cargo-lipo
+
 rustup default 1.42.0
 rustup target add i686-unknown-linux-gnu
 rustup target add x86_64-unknown-linux-gnu
