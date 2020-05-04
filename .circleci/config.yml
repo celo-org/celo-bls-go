@@ -44,7 +44,6 @@ jobs:
             ./bls_example
 
   bundle-libs:
-    <<: *rust_defaults
     working_directory: ~/app
     macos:
       xcode: 11.4.0
