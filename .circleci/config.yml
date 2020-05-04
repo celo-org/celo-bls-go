@@ -36,9 +36,17 @@ jobs:
           name: Build and run example
           command: |
             cd ~/app/
-            cd ./cmd
+            cd ./example
             go build bls_example.go
             ./bls_example
+      - run:
+          name: Build release libs
+          command: |
+            ./tools/release.sh
+            tar czf libs.tar.gz libs
+
+      - store_artifacts:
+          path: ~/app/libs.tar.gz
 
 workflows:
   version: 2
