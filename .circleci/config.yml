@@ -42,7 +42,7 @@ jobs:
       - run:
           name: Build release libs
           command: |
-            ./tools/release.sh
+            ./scripts/release.sh
             tar czf libs.tar.gz libs
 
       - store_artifacts:
