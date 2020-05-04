@@ -52,6 +52,7 @@ jobs:
       - run:
           name: Build release libs
           command: |
+            git submodule update --init --release
             ./scripts/release.sh
             tar czf libs.tar.gz libs
       - store_artifacts:
