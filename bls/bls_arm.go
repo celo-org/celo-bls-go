@@ -3,6 +3,6 @@
 package bls
 
 /*
-#cgo LDFLAGS: -L${SRCDIR}/../libs/arm-unknown-linux-gnueabi -lepoch_snark -ldl -lm
+#cgo LDFLAGS: -L${SRCDIR}/../libs/arm-unknown-linux-gnueabi -lbls_snark_sys -ldl -lm
 */
 import "C"
