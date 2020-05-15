@@ -70,9 +70,9 @@ workflows:
   run-tests:
     jobs:
       - checkout-repo
-      - go-tests:
-          requires:
-            - checkout-repo
       - bundle-libs:
           requires:
-            - go-tests
+            - checkout-repo
+      - go-tests:
+          requires:
+            - bundle-libs

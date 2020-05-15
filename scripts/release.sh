@@ -63,14 +63,14 @@ for platform in `ls ${COMPILE_DIR} | grep -v release | grep -v debug`
 do
   PLATFORM_DIR=${DIRECTORY}/$platform
   mkdir -p ${PLATFORM_DIR}
-  LIB_PATH=${COMPILE_DIR}/$platform/release/libepoch_snark.a
+  LIB_PATH=${COMPILE_DIR}/$platform/release/libbls_snark_sys.a
   if [[ -f ${LIB_PATH} ]]
   then
-    cp ${COMPILE_DIR}/$platform/release/libepoch_snark.a ${PLATFORM_DIR}
+    cp ${COMPILE_DIR}/$platform/release/libbls_snark_sys.a ${PLATFORM_DIR}
   fi
-  WINDOWS_LIB_PATH=${COMPILE_DIR}/$platform/release/epoch_snark.lib
+  WINDOWS_LIB_PATH=${COMPILE_DIR}/$platform/release/bls_snark_sys.lib
   if [[ -f ${WINDOWS_LIB_PATH} ]]
   then
-    cp ${COMPILE_DIR}/$platform/release/epoch_snark.lib ${PLATFORM_DIR}
+    cp ${COMPILE_DIR}/$platform/release/bls_snark_sys.lib ${PLATFORM_DIR}
   fi
 done
