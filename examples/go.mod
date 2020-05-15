@@ -1,4 +1,4 @@
-module github.com/celo-org/bls-zexe/go/bls/cmd
+module github.com/celo-org/celo-bls-go/examples
 
 go 1.13
 

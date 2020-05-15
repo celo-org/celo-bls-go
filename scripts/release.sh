@@ -1,6 +1,6 @@
 #!/bin/bash -e
 
-pushd bls-zexe
+pushd celo-bls-snark-rs
 
 cargo install cargo-lipo
 
@@ -58,7 +58,7 @@ then
 fi
 
 TOOLS_DIR=`dirname $0`
-COMPILE_DIR=${TOOLS_DIR}/../bls-zexe/target
+COMPILE_DIR=${TOOLS_DIR}/../celo-bls-snark-rs/target
 for platform in `ls ${COMPILE_DIR} | grep -v release | grep -v debug`
 do
   PLATFORM_DIR=${DIRECTORY}/$platform
