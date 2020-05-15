@@ -1,1 +1,4 @@
 
+[submodule "celo-bls-snark-rs"]
+	path = celo-bls-snark-rs
+	url = https://github.com/celo-org/celo-bls-snark-rs
