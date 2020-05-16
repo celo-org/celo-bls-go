@@ -1,3 +1,4 @@
-[submodule "bls-zexe"]
-	path = bls-zexe
-	url = https://github.com/celo-org/bls-zexe
+
+[submodule "celo-bls-snark-rs"]
+	path = celo-bls-snark-rs
+	url = https://github.com/celo-org/celo-bls-snark-rs

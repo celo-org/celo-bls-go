@@ -1,6 +1,15 @@
 #!/bin/bash -e
 
-pushd bls-zexe
+DIRECTORY=./libs
+if [[ -d "$DIRECTORY" ]]
+then
+    echo "$DIRECTORY exists on your filesystem. Delete it and run the script again."
+    exit 0
+fi
+
+pushd celo-bls-snark-rs
+
+cargo install cargo-lipo
 
 rustup default 1.42.0
 rustup target add i686-unknown-linux-gnu
@@ -19,7 +28,6 @@ rustup target add aarch64-linux-android
 rustup target add armv7-linux-androideabi
 rustup target add i686-linux-android
 rustup target add x86_64-linux-android
-rustup target add aarch64-apple-ios x86_64-apple-ios
 rustup target add x86_64-unknown-linux-musl
 
 cargo build --release --target=aarch64-linux-android --lib
@@ -43,33 +51,28 @@ cargo build --target=x86_64-unknown-linux-musl --release
 
 rustup default 1.41.0
 rustup target add i686-apple-darwin
-rustup target add armv7-apple-ios i386-apple-ios
+rustup target add armv7-apple-ios i386-apple-ios aarch64-apple-ios x86_64-apple-ios
 cargo build --target=i686-apple-darwin --release
 cargo lipo --release --targets=aarch64-apple-ios,armv7-apple-ios,x86_64-apple-ios,i386-apple-ios
 
 popd 
 
-DIRECTORY=./libs
-if [[ -d "$DIRECTORY" ]]
-then
-    echo "$DIRECTORY exists on your filesystem. Delete it and run the script again."
-    exit
-fi
-
 TOOLS_DIR=`dirname $0`
-COMPILE_DIR=${TOOLS_DIR}/../bls-zexe/target
+COMPILE_DIR=${TOOLS_DIR}/../celo-bls-snark-rs/target
 for platform in `ls ${COMPILE_DIR} | grep -v release | grep -v debug`
 do
   PLATFORM_DIR=${DIRECTORY}/$platform
   mkdir -p ${PLATFORM_DIR}
-  LIB_PATH=${COMPILE_DIR}/$platform/release/libepoch_snark.a
+  LIB_PATH=${COMPILE_DIR}/$platform/release/libbls_snark_sys.a
   if [[ -f ${LIB_PATH} ]]
   then
-    cp ${COMPILE_DIR}/$platform/release/libepoch_snark.a ${PLATFORM_DIR}
+    cp ${COMPILE_DIR}/$platform/release/libbls_snark_sys.a ${PLATFORM_DIR}
   fi
-  WINDOWS_LIB_PATH=${COMPILE_DIR}/$platform/release/epoch_snark.lib
+  WINDOWS_LIB_PATH=${COMPILE_DIR}/$platform/release/bls_snark_sys.lib
   if [[ -f ${WINDOWS_LIB_PATH} ]]
   then
-    cp ${COMPILE_DIR}/$platform/release/epoch_snark.lib ${PLATFORM_DIR}
+    cp ${COMPILE_DIR}/$platform/release/bls_snark_sys.lib ${PLATFORM_DIR}
   fi
 done
+
+tar czf libs.tar.gz libs
