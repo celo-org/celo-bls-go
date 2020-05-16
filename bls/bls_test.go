@@ -1,6 +1,7 @@
 package bls
 
 import (
+  "bytes"
 	"encoding/hex"
 	"fmt"
 	"testing"
@@ -260,5 +261,21 @@ func TestVerifySignatureErrors(t *testing.T) {
 	if err != NilPointerError {
 		t.Fatalf("should have been a nil pointer")
 	}
+}
 
+func TestPublicKeySerialization(t *testing.T) {
+	InitBLSCrypto()
+	privateKey, _ := GeneratePrivateKey()
+	defer privateKey.Destroy()
+	publicKey, _ := privateKey.ToPublic()
+  publicKeyBytes, _ := publicKey.Serialize()
+
+  deserializedKey, _ := DeserializePublicKey(publicKeyBytes)
+  deserializedKey2, _ := DeserializePublicKeyCached(publicKeyBytes)
+
+  serializedKey, _ := deserializedKey.Serialize()
+  serializedKey2, _ := deserializedKey2.Serialize()
+	if !bytes.Equal(serializedKey, serializedKey2) {
+		t.Fatalf("public keys should have been equal")
+	}
 }

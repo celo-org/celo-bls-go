@@ -93,6 +93,10 @@ bool deserialize_public_key(const uint8_t *in_public_key_bytes,
                             int in_public_key_bytes_len,
                             PublicKey **out_public_key);
 
+bool deserialize_public_key_cached(const uint8_t *in_public_key_bytes,
+                            int in_public_key_bytes_len,
+                            PublicKey **out_public_key);
+
 bool deserialize_signature(const uint8_t *in_signature_bytes,
                            int in_signature_bytes_len,
                            Signature **out_signature);

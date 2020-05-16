@@ -234,6 +234,23 @@ func DeserializePublicKey(publicKeyBytes []byte) (*PublicKey, error) {
 	return publicKey, nil
 }
 
+func DeserializePublicKeyCached(publicKeyBytes []byte) (*PublicKey, error) {
+	err := validatePublicKey(publicKeyBytes)
+	if err != nil {
+		return nil, err
+	}
+
+	publicKeyPtr, publicKeyLen := sliceToPtr(publicKeyBytes)
+
+	publicKey := &PublicKey{}
+	success := C.deserialize_public_key_cached(publicKeyPtr, publicKeyLen, &publicKey.ptr)
+	if !success {
+		return nil, GeneralError
+	}
+
+	return publicKey, nil
+}
+
 func (self *PublicKey) Serialize() ([]byte, error) {
 	var bytes *C.uchar
 	var size C.int
