@@ -61,7 +61,6 @@ jobs:
           command: |
             git submodule update --init --recursive
             ./scripts/release.sh
-            tar czf libs.tar.gz libs
       - store_artifacts:
           path: ~/app/libs.tar.gz
       - persist_to_workspace:
