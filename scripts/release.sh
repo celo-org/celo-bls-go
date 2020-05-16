@@ -1,5 +1,12 @@
 #!/bin/bash -e
 
+DIRECTORY=./libs
+if [[ -d "$DIRECTORY" ]]
+then
+    echo "$DIRECTORY exists on your filesystem. Delete it and run the script again."
+    exit 0
+fi
+
 pushd celo-bls-snark-rs
 
 cargo install cargo-lipo
@@ -50,13 +57,6 @@ cargo lipo --release --targets=aarch64-apple-ios,armv7-apple-ios,x86_64-apple-io
 
 popd 
 
-DIRECTORY=./libs
-if [[ -d "$DIRECTORY" ]]
-then
-    echo "$DIRECTORY exists on your filesystem. Delete it and run the script again."
-    exit
-fi
-
 TOOLS_DIR=`dirname $0`
 COMPILE_DIR=${TOOLS_DIR}/../celo-bls-snark-rs/target
 for platform in `ls ${COMPILE_DIR} | grep -v release | grep -v debug`
@@ -74,3 +74,5 @@ do
     cp ${COMPILE_DIR}/$platform/release/bls_snark_sys.lib ${PLATFORM_DIR}
   fi
 done
+
+tar czf libs.tar.gz libs
