@@ -1,30 +1,20 @@
 package bls
 
 import (
-  "bytes"
+	"bytes"
 	"encoding/hex"
 	"fmt"
 	"testing"
 )
 
-// this test is a copy of the `bls-crypto::keys::test_batch_verify` Rust test
-func TestBatchVerify(t *testing.T) {
-	InitBLSCrypto()
-
-	testBatchVerify(t, true)
-	testBatchVerify(t, false)
-}
-
-func testBatchVerify(t *testing.T, mode bool) {
-	num_epochs := 10
-	num_validators := 7
-	var msgs []*SignedBlockHeader
-	for i := 0; i < num_epochs; i++ {
+func generateTestData(numEpochs int, numValidators int, mode bool) []*SignedBlockHeader {
+	var headers []*SignedBlockHeader
+	for i := 0; i < numEpochs; i++ {
 		message := []byte(fmt.Sprintf("msg_%d", i))
 		extraData := []byte(fmt.Sprintf("extra_%d", i))
 		var epoch_sigs []*Signature
 		var epoch_pubkeys []*PublicKey
-		for j := 0; j < num_validators; j++ {
+		for j := 0; j < numValidators; j++ {
 			// generate a private key
 			privateKey, _ := GeneratePrivateKey()
 
@@ -41,14 +31,53 @@ func testBatchVerify(t *testing.T, mode bool) {
 		epoch_asig, _ := AggregateSignatures(epoch_sigs)
 		epoch_apubkey, _ := AggregatePublicKeys(epoch_pubkeys)
 
-		msg := &SignedBlockHeader{
+		header := &SignedBlockHeader{
 			Data:   message,
 			Extra:  extraData,
 			Pubkey: epoch_apubkey,
 			Sig:    epoch_asig,
 		}
-		msgs = append(msgs, msg)
+		headers = append(headers, header)
 	}
+
+	return headers
+}
+
+func BenchmarkBlsBatch(b *testing.B) {
+	mode := false
+	headers := generateTestData(10, 10, mode)
+
+	b.Run("individual", func(b *testing.B) {
+		for n := 0; n < b.N; n++ {
+			for _, h := range headers {
+				err := h.Pubkey.VerifySignature(h.Data, h.Extra, h.Sig, mode)
+				if err != nil {
+					panic("sig verification should not fail")
+				}
+			}
+		}
+	})
+
+	b.Run("batched", func(b *testing.B) {
+		for n := 0; n < b.N; n++ {
+			err := BatchVerifyEpochs(headers, mode)
+			if err != nil {
+				panic("sig verification should not fail")
+			}
+		}
+	})
+}
+
+// this test is a copy of the `bls-crypto::keys::test_batch_verify` Rust test
+func TestBatchVerify(t *testing.T) {
+	InitBLSCrypto()
+
+	testBatchVerify(t, true)
+	testBatchVerify(t, false)
+}
+
+func testBatchVerify(t *testing.T, mode bool) {
+	msgs := generateTestData(10, 7, mode)
 
 	err := BatchVerifyEpochs(msgs, mode)
 	if err != nil {
@@ -268,13 +297,13 @@ func TestPublicKeySerialization(t *testing.T) {
 	privateKey, _ := GeneratePrivateKey()
 	defer privateKey.Destroy()
 	publicKey, _ := privateKey.ToPublic()
-  publicKeyBytes, _ := publicKey.Serialize()
+	publicKeyBytes, _ := publicKey.Serialize()
 
-  deserializedKey, _ := DeserializePublicKey(publicKeyBytes)
-  deserializedKey2, _ := DeserializePublicKeyCached(publicKeyBytes)
+	deserializedKey, _ := DeserializePublicKey(publicKeyBytes)
+	deserializedKey2, _ := DeserializePublicKeyCached(publicKeyBytes)
 
-  serializedKey, _ := deserializedKey.Serialize()
-  serializedKey2, _ := deserializedKey2.Serialize()
+	serializedKey, _ := deserializedKey.Serialize()
+	serializedKey2, _ := deserializedKey2.Serialize()
 	if !bytes.Equal(serializedKey, serializedKey2) {
 		t.Fatalf("public keys should have been equal")
 	}
