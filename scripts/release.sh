@@ -22,7 +22,7 @@ rustup target add mipsel-unknown-linux-gnu
 rustup target add mips64-unknown-linux-gnuabi64
 rustup target add mips64el-unknown-linux-gnuabi64
 rustup target add x86_64-apple-darwin
-rustup target add i686-pc-windows-msvc
+rustup target add i686-pc-windows-gnu
 rustup target add x86_64-pc-windows-gnu
 rustup target add aarch64-linux-android
 rustup target add armv7-linux-androideabi
@@ -45,7 +45,7 @@ cargo build --target=mipsel-unknown-linux-gnu --release
 cargo build --target=mips64-unknown-linux-gnuabi64 --release
 cargo build --target=mips64el-unknown-linux-gnuabi64 --release
 cargo build --target=x86_64-apple-darwin --release
-cargo build --target=i686-pc-windows-msvc --release
+cargo build --target=i686-pc-windows-gnu --release
 cargo build --target=x86_64-pc-windows-gnu --release
 cargo build --target=x86_64-unknown-linux-musl --release
 
