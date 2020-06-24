@@ -3,7 +3,7 @@
 package bls
 
 /*
-#cgo LDFLAGS: -L${SRCDIR}/../libs/x86_64-pc-windows-msvc -lbls_snark_sys -lm -lws2_32 -luserenv
+#cgo LDFLAGS: -L${SRCDIR}/../libs/x86_64-pc-windows-gnu -lbls_snark_sys -lm -lws2_32 -luserenv
 */
 import "C"
 
