@@ -3,7 +3,7 @@ module github.com/celo-org/celo-bls-go/examples
 go 1.13
 
 require (
-	github.com/celo-org/celo-bls-go v0.1.3
+	github.com/celo-org/celo-bls-go v0.1.4
 	github.com/celo-org/celo-bls-go/bls v0.0.0-00010101000000-000000000000
 )
 
