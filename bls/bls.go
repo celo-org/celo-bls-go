@@ -478,7 +478,7 @@ func AggregateSignatures(signatures []*Signature) (*Signature, error) {
 	return aggregatedSignature, nil
 }
 
-func encodeEpochToBytes(epochIndex uint16, blockHash, parentHash EpochEntropy, maximumNonSigners uint32, addedPublicKeys []*PublicKey, shouldEncodeAggregatedPublicKey bool) ([]byte, error) {
+func encodeEpochToBytes(epochIndex uint16, blockHash, parentHash EpochEntropy, maximumNonSigners uint32, addedPublicKeys []*PublicKey, shouldEncodeAggregatedPublicKey bool, includeEntropy bool) ([]byte, error) {
 	if len(addedPublicKeys) == 0 {
 		return nil, EmptySliceError
 	}
@@ -490,12 +490,20 @@ func encodeEpochToBytes(epochIndex uint16, blockHash, parentHash EpochEntropy, m
 		}
 		publicKeysPtrs = append(publicKeysPtrs, pk.ptr)
 	}
+
+	// If entropy should not be included, pass zero pointers.
+	var blockHashPtr, parentHashPtr *C.uchar
+	if includeEntropy {
+		blockHashPtr = (*C.uchar)(&blockHash[0])
+		parentHashPtr = (*C.uchar)(&parentHash[0])
+	}
+
 	var bytes *C.uchar
 	var size C.int
 	success := C.encode_epoch_block_to_bytes(
 		C.ushort(epochIndex),
-		(*C.uchar)(&blockHash[0]),
-		(*C.uchar)(&parentHash[0]),
+		blockHashPtr,
+		parentHashPtr,
 		C.uint(maximumNonSigners),
 		(**C.struct_PublicKey)(unsafe.Pointer(&publicKeysPtrs[0])),
 		C.int(len(publicKeysPtrs)),
@@ -516,9 +524,16 @@ func encodeEpochToBytes(epochIndex uint16, blockHash, parentHash EpochEntropy, m
 }
 
 func EncodeEpochToBytes(epochIndex uint16, blockHash, parentHash EpochEntropy, maximumNonSigners uint32, addedPublicKeys []*PublicKey) ([]byte, error) {
-	return encodeEpochToBytes(epochIndex, blockHash, parentHash, maximumNonSigners, addedPublicKeys, false)
+	return encodeEpochToBytes(epochIndex, blockHash, parentHash, maximumNonSigners, addedPublicKeys, false, true)
+}
+
+// EncodeEpochToBytesWithoutEntropy encodes the deprecated epoch message data format where no unpredictability is included.
+// It is to be used until the hard fork is active to use the new format.
+// Note: Because this only effects active participants in consensus, it may be safely removed after the hard fork is active.
+func EncodeEpochToBytesWithoutEntropy(epochIndex uint16, maximumNonSigners uint32, addedPublicKeys []*PublicKey) ([]byte, error) {
+	return encodeEpochToBytes(epochIndex, EpochEntropy{}, EpochEntropy{}, maximumNonSigners, addedPublicKeys, false, false)
 }
 
 func EncodeEpochToBytesWithAggregatedKey(epochIndex uint16, blockHash, parentHash EpochEntropy, maximumNonSigners uint32, addedPublicKeys []*PublicKey) ([]byte, error) {
-	return encodeEpochToBytes(epochIndex, blockHash, parentHash, maximumNonSigners, addedPublicKeys, true)
+	return encodeEpochToBytes(epochIndex, blockHash, parentHash, maximumNonSigners, addedPublicKeys, true, true)
 }

@@ -211,6 +211,22 @@ func TestEncoding(t *testing.T) {
 	}
 }
 
+func TestEncodingWithoutEntropy(t *testing.T) {
+	InitBLSCrypto()
+	privateKey, _ := GeneratePrivateKey()
+	defer privateKey.Destroy()
+	publicKey, _ := privateKey.ToPublic()
+
+	privateKey2, _ := GeneratePrivateKey()
+	defer privateKey2.Destroy()
+	publicKey2, _ := privateKey2.ToPublic()
+
+	_, err := EncodeEpochToBytesWithoutEntropy(10, 20, []*PublicKey{publicKey, publicKey2})
+	if err != nil {
+		t.Fatalf("failed encoding epoch bytes")
+	}
+}
+
 func TestAggregatePublicKeysErrors(t *testing.T) {
 	InitBLSCrypto()
 	privateKey, _ := GeneratePrivateKey()
