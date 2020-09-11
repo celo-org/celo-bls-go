@@ -108,6 +108,8 @@ bool destroy_public_key(PublicKey *public_key);
 bool destroy_signature(Signature *signature);
 
 bool encode_epoch_block_to_bytes(unsigned short in_epoch_index,
+                                 uint8_t *block_hash,
+                                 uint8_t *parent_hash,
                                  unsigned int in_maximum_non_signers,
                                  const PublicKey *const *in_added_public_keys,
                                  int in_added_public_keys_len,

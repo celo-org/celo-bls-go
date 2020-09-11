@@ -10,18 +10,23 @@ import (
 	"unsafe"
 )
 
-const MODULUS377 = "8444461749428370424248824938781546531375899335154063827935233455917409239041"
-const MODULUSBITS = 253
-const MODULUSMASK = 31 // == 2**(253-(256-8)) - 1
-const PRIVATEKEYBYTES = 32
-const PUBLICKEYBYTES = 96
-const SIGNATUREBYTES = 48
+const (
+	MODULUS377        = "8444461749428370424248824938781546531375899335154063827935233455917409239041"
+	MODULUSBITS       = 253
+	MODULUSMASK       = 31 // == 2**(253-(256-8)) - 1
+	PRIVATEKEYBYTES   = 32
+	PUBLICKEYBYTES    = 96
+	SIGNATUREBYTES    = 48
+	EPOCHENTROPYBYTES = 16
+)
 
-var GeneralError = errors.New("General error")
-var NotVerifiedError = errors.New("Not verified")
-var IncorrectSizeError = errors.New("Input had incorrect size")
-var NilPointerError = errors.New("Pointer was nil")
-var EmptySliceError = errors.New("Slice was empty")
+var (
+	GeneralError       = errors.New("General error")
+	NotVerifiedError   = errors.New("Not verified")
+	IncorrectSizeError = errors.New("Input had incorrect size")
+	NilPointerError    = errors.New("Pointer was nil")
+	EmptySliceError    = errors.New("Slice was empty")
+)
 
 func validatePrivateKey(privateKey []byte) error {
 	if len(privateKey) != PRIVATEKEYBYTES {
@@ -78,6 +83,10 @@ type SignedBlockHeader struct {
 	/// The aggregate signature for this epoch
 	Sig *Signature
 }
+
+// EpochEntropy is a string of unprediactable bytes included in the epoch SNARK data
+// to make prediction of future epoch message values infeasible.
+type EpochEntropy [EPOCHENTROPYBYTES]byte
 
 func InitBLSCrypto() {
 	C.init()
@@ -469,13 +478,13 @@ func AggregateSignatures(signatures []*Signature) (*Signature, error) {
 	return aggregatedSignature, nil
 }
 
-func encodeEpochToBytes(epochIndex uint16, maximumNonSigners uint32, addedPublicKeys []*PublicKey, shouldEncodeAggregatedPublicKey bool) ([]byte, error) {
-	if len(addedPublicKeys) == 0 {
+func encodeEpochToBytes(epochIndex uint16, blockHash, parentHash EpochEntropy, maximumNonSigners uint32, publicKeys []*PublicKey, shouldEncodeAggregatedPublicKey bool) ([]byte, error) {
+	if len(publicKeys) == 0 {
 		return nil, EmptySliceError
 	}
 
 	publicKeysPtrs := []*C.struct_PublicKey{}
-	for _, pk := range addedPublicKeys {
+	for _, pk := range publicKeys {
 		if pk == nil {
 			return nil, NilPointerError
 		}
@@ -483,7 +492,17 @@ func encodeEpochToBytes(epochIndex uint16, maximumNonSigners uint32, addedPublic
 	}
 	var bytes *C.uchar
 	var size C.int
-	success := C.encode_epoch_block_to_bytes(C.ushort(epochIndex), C.uint(maximumNonSigners), (**C.struct_PublicKey)(unsafe.Pointer(&publicKeysPtrs[0])), C.int(len(publicKeysPtrs)), C.bool(shouldEncodeAggregatedPublicKey), &bytes, &size)
+	success := C.encode_epoch_block_to_bytes(
+		C.ushort(epochIndex),
+		(*C.uchar)(&blockHash[0]),
+		(*C.uchar)(&parentHash[0]),
+		C.uint(maximumNonSigners),
+		(**C.struct_PublicKey)(unsafe.Pointer(&publicKeysPtrs[0])),
+		C.int(len(publicKeysPtrs)),
+		C.bool(shouldEncodeAggregatedPublicKey),
+		&bytes,
+		&size,
+	)
 	if !success {
 		return nil, GeneralError
 	}
@@ -496,10 +515,10 @@ func encodeEpochToBytes(epochIndex uint16, maximumNonSigners uint32, addedPublic
 	return goBytes, nil
 }
 
-func EncodeEpochToBytes(epochIndex uint16, maximumNonSigners uint32, addedPublicKeys []*PublicKey) ([]byte, error) {
-	return encodeEpochToBytes(epochIndex, maximumNonSigners, addedPublicKeys, false)
+func EncodeEpochToBytes(epochIndex uint16, blockHash, parentHash EpochEntropy, maximumNonSigners uint32, publicKeys []*PublicKey) ([]byte, error) {
+	return encodeEpochToBytes(epochIndex, blockHash, parentHash, maximumNonSigners, publicKeys, false)
 }
 
-func EncodeEpochToBytesWithAggregatedKey(epochIndex uint16, maximumNonSigners uint32, addedPublicKeys []*PublicKey) ([]byte, error) {
-	return encodeEpochToBytes(epochIndex, maximumNonSigners, addedPublicKeys, true)
+func EncodeEpochToBytesWithAggregatedKey(epochIndex uint16, blockHash, parentHash EpochEntropy, maximumNonSigners uint32, publicKeys []*PublicKey) ([]byte, error) {
+	return encodeEpochToBytes(epochIndex, blockHash, parentHash, maximumNonSigners, publicKeys, true)
 }
