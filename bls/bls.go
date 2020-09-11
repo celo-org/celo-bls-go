@@ -478,13 +478,13 @@ func AggregateSignatures(signatures []*Signature) (*Signature, error) {
 	return aggregatedSignature, nil
 }
 
-func encodeEpochToBytes(epochIndex uint16, blockHash, parentHash EpochEntropy, maximumNonSigners uint32, publicKeys []*PublicKey, shouldEncodeAggregatedPublicKey bool) ([]byte, error) {
-	if len(publicKeys) == 0 {
+func encodeEpochToBytes(epochIndex uint16, blockHash, parentHash EpochEntropy, maximumNonSigners uint32, addedPublicKeys []*PublicKey, shouldEncodeAggregatedPublicKey bool) ([]byte, error) {
+	if len(addedPublicKeys) == 0 {
 		return nil, EmptySliceError
 	}
 
 	publicKeysPtrs := []*C.struct_PublicKey{}
-	for _, pk := range publicKeys {
+	for _, pk := range addedPublicKeys {
 		if pk == nil {
 			return nil, NilPointerError
 		}
@@ -515,10 +515,10 @@ func encodeEpochToBytes(epochIndex uint16, blockHash, parentHash EpochEntropy, m
 	return goBytes, nil
 }
 
-func EncodeEpochToBytes(epochIndex uint16, blockHash, parentHash EpochEntropy, maximumNonSigners uint32, publicKeys []*PublicKey) ([]byte, error) {
-	return encodeEpochToBytes(epochIndex, blockHash, parentHash, maximumNonSigners, publicKeys, false)
+func EncodeEpochToBytes(epochIndex uint16, blockHash, parentHash EpochEntropy, maximumNonSigners uint32, addedPublicKeys []*PublicKey) ([]byte, error) {
+	return encodeEpochToBytes(epochIndex, blockHash, parentHash, maximumNonSigners, addedPublicKeys, false)
 }
 
-func EncodeEpochToBytesWithAggregatedKey(epochIndex uint16, blockHash, parentHash EpochEntropy, maximumNonSigners uint32, publicKeys []*PublicKey) ([]byte, error) {
-	return encodeEpochToBytes(epochIndex, blockHash, parentHash, maximumNonSigners, publicKeys, true)
+func EncodeEpochToBytesWithAggregatedKey(epochIndex uint16, blockHash, parentHash EpochEntropy, maximumNonSigners uint32, addedPublicKeys []*PublicKey) ([]byte, error) {
+	return encodeEpochToBytes(epochIndex, blockHash, parentHash, maximumNonSigners, addedPublicKeys, true)
 }
