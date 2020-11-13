@@ -20,10 +20,14 @@ type VerifyingKey []byte
 
 /// The EpochBlock to be used for Verification in the SNARK
 type EpochBlock struct {
-	// Index of the epoch
+	/// Index of the epoch
 	Index uint16
 	/// Max non signers per block
 	MaxNonSigners uint32
+	/// Epoch entropy value
+	EpochEntropy []byte
+	/// Parent entropy value
+	ParentEntropy []byte
 	/// Serialized public keys of the validators in this epoch (each `PUBLIC_KEY_BYTES` long)
 	PublicKeys [][]byte
 }
@@ -56,18 +60,26 @@ func VerifyEpochs(
 	proofPtr, proofLen := sliceToPtr(proof)
 
 	firstPublicKeysPtr, _ := vecToPtr(firstEpoch.PublicKeys)
+	firstEpochEntropyPtr, _ := sliceToPtr(firstEpoch.EpochEntropy)
+	firstParentEntropyPtr, _ := sliceToPtr(firstEpoch.ParentEntropy)
 	firstEpochRaw := C.EpochBlockFFI{
 		index:               C.ushort(firstEpoch.Index),
 		maximum_non_signers: C.uint(firstEpoch.MaxNonSigners),
+		epoch_entropy:		 firstEpochEntropyPtr,
+		parent_entropy:		 firstParentEntropyPtr,
 		pubkeys_num:         C.ulong(len(firstEpoch.PublicKeys)),
 		pubkeys:             firstPublicKeysPtr,
 	}
 
 	lastPublicKeysPtr, _ := vecToPtr(lastEpoch.PublicKeys)
+	lastEpochEntropyPtr, _ := sliceToPtr(lastEpoch.EpochEntropy)
+	lastParentEntropyPtr, _ := sliceToPtr(lastEpoch.ParentEntropy)
 	lastEpochRaw := C.EpochBlockFFI{
 		index:               C.ushort(lastEpoch.Index),
 		maximum_non_signers: C.uint(lastEpoch.MaxNonSigners),
-		pubkeys_num:         C.ulong(len(firstEpoch.PublicKeys)),
+		epoch_entropy:		 lastEpochEntropyPtr,
+		parent_entropy:		 lastParentEntropyPtr,
+		pubkeys_num:         C.ulong(len(lastEpoch.PublicKeys)),
 		pubkeys:             lastPublicKeysPtr,
 	}
 

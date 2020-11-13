@@ -182,7 +182,7 @@ func TestNonCompositeSig(t *testing.T) {
 	}
 }
 
-func TestEncoding(t *testing.T) {
+func TestEncodingCIP22(t *testing.T) {
 	InitBLSCrypto()
 	privateKey, _ := GeneratePrivateKey()
 	defer privateKey.Destroy()
@@ -196,22 +196,14 @@ func TestEncoding(t *testing.T) {
 	copy(blockHash[:], "foo")
 	copy(parentHash[:], "bar")
 
-	bytes, err := EncodeEpochToBytes(10, blockHash, parentHash, 20, []*PublicKey{publicKey, publicKey2})
+	bytes, extraData, err := EncodeEpochToBytesCIP22(10, blockHash, parentHash, 20, []*PublicKey{publicKey, publicKey2})
 	if err != nil {
 		t.Fatalf("failed encoding epoch bytes")
 	}
-	t.Logf("encoding: %s\n", hex.EncodeToString(bytes))
-	bytesWithApk, err := EncodeEpochToBytesWithAggregatedKey(10, blockHash, parentHash, 20, []*PublicKey{publicKey, publicKey2})
-	if err != nil {
-		t.Fatalf("failed encoding epoch bytes")
-	}
-	t.Logf("encoding with aggregated public key: %s\n", hex.EncodeToString(bytes))
-	if len(bytesWithApk) <= len(bytes) {
-		t.Fatalf("encoding with the aggregated public key should be larger")
-	}
+	t.Logf("encoding: %s, %s\n", hex.EncodeToString(bytes), hex.EncodeToString(extraData))
 }
 
-func TestEncodingWithoutEntropy(t *testing.T) {
+func TestEncoding(t *testing.T) {
 	InitBLSCrypto()
 	privateKey, _ := GeneratePrivateKey()
 	defer privateKey.Destroy()
@@ -221,7 +213,7 @@ func TestEncodingWithoutEntropy(t *testing.T) {
 	defer privateKey2.Destroy()
 	publicKey2, _ := privateKey2.ToPublic()
 
-	_, err := EncodeEpochToBytesWithoutEntropy(10, 20, []*PublicKey{publicKey, publicKey2})
+	_, err := EncodeEpochToBytes(10, 20, []*PublicKey{publicKey, publicKey2})
 	if err != nil {
 		t.Fatalf("failed encoding epoch bytes")
 	}
@@ -272,11 +264,11 @@ func TestAggregateSignaturesErrors(t *testing.T) {
 func TestEncodeErrors(t *testing.T) {
 	InitBLSCrypto()
 
-	_, err := EncodeEpochToBytes(0, EpochEntropy{}, EpochEntropy{}, 0, []*PublicKey{})
+	_, _, err := EncodeEpochToBytesCIP22(0, EpochEntropy{}, EpochEntropy{}, 0, []*PublicKey{})
 	if err != EmptySliceError {
 		t.Fatalf("should have been an empty slice")
 	}
-	_, err = EncodeEpochToBytes(0, EpochEntropy{}, EpochEntropy{}, 0, nil)
+	_, _, err = EncodeEpochToBytesCIP22(0, EpochEntropy{}, EpochEntropy{}, 0, nil)
 	if err != EmptySliceError {
 		t.Fatalf("should have been an empty slice")
 	}

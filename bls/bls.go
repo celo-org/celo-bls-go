@@ -478,7 +478,57 @@ func AggregateSignatures(signatures []*Signature) (*Signature, error) {
 	return aggregatedSignature, nil
 }
 
-func encodeEpochToBytes(epochIndex uint16, blockHash, parentHash EpochEntropy, maximumNonSigners uint32, addedPublicKeys []*PublicKey, shouldEncodeAggregatedPublicKey bool, includeEntropy bool) ([]byte, error) {
+func encodeEpochToBytesCIP22(epochIndex uint16, blockHash, parentHash EpochEntropy, maximumNonSigners uint32, addedPublicKeys []*PublicKey, shouldEncodeAggregatedPublicKey bool) ([]byte, []byte, error) {
+	if len(addedPublicKeys) == 0 {
+		return nil, nil, EmptySliceError
+	}
+
+	publicKeysPtrs := []*C.struct_PublicKey{}
+	for _, pk := range addedPublicKeys {
+		if pk == nil {
+			return nil, nil, NilPointerError
+		}
+		publicKeysPtrs = append(publicKeysPtrs, pk.ptr)
+	}
+
+	blockHashPtr := (*C.uchar)(&blockHash[0])
+	parentHashPtr := (*C.uchar)(&parentHash[0])
+
+	var bytes *C.uchar
+	var size C.int
+	var extraDataBytes *C.uchar
+	var extraDataSize C.int
+	success := C.encode_epoch_block_to_bytes_cip22(
+		C.ushort(epochIndex),
+		blockHashPtr,
+		parentHashPtr,
+		C.uint(maximumNonSigners),
+		(**C.struct_PublicKey)(unsafe.Pointer(&publicKeysPtrs[0])),
+		C.int(len(publicKeysPtrs)),
+		C.bool(shouldEncodeAggregatedPublicKey),
+		&bytes,
+		&size,
+		&extraDataBytes,
+		&extraDataSize,
+	)
+	if !success {
+		return nil, nil, GeneralError
+	}
+
+	goBytes := C.GoBytes(unsafe.Pointer(bytes), size)
+	success = C.free_vec(bytes, size)
+	if !success {
+		return nil, nil, GeneralError
+	}
+	goExtraDataBytes := C.GoBytes(unsafe.Pointer(extraDataBytes), size)
+	success = C.free_vec(extraDataBytes, extraDataSize)
+	if !success {
+		return nil, nil, GeneralError
+	}
+	return goBytes, goExtraDataBytes, nil
+}
+
+func encodeEpochToBytes(epochIndex uint16, maximumNonSigners uint32, addedPublicKeys []*PublicKey, shouldEncodeAggregatedPublicKey bool) ([]byte, error) {
 	if len(addedPublicKeys) == 0 {
 		return nil, EmptySliceError
 	}
@@ -491,19 +541,10 @@ func encodeEpochToBytes(epochIndex uint16, blockHash, parentHash EpochEntropy, m
 		publicKeysPtrs = append(publicKeysPtrs, pk.ptr)
 	}
 
-	// If entropy should not be included, pass zero pointers.
-	var blockHashPtr, parentHashPtr *C.uchar
-	if includeEntropy {
-		blockHashPtr = (*C.uchar)(&blockHash[0])
-		parentHashPtr = (*C.uchar)(&parentHash[0])
-	}
-
 	var bytes *C.uchar
 	var size C.int
 	success := C.encode_epoch_block_to_bytes(
 		C.ushort(epochIndex),
-		blockHashPtr,
-		parentHashPtr,
 		C.uint(maximumNonSigners),
 		(**C.struct_PublicKey)(unsafe.Pointer(&publicKeysPtrs[0])),
 		C.int(len(publicKeysPtrs)),
@@ -523,17 +564,14 @@ func encodeEpochToBytes(epochIndex uint16, blockHash, parentHash EpochEntropy, m
 	return goBytes, nil
 }
 
-func EncodeEpochToBytes(epochIndex uint16, blockHash, parentHash EpochEntropy, maximumNonSigners uint32, addedPublicKeys []*PublicKey) ([]byte, error) {
-	return encodeEpochToBytes(epochIndex, blockHash, parentHash, maximumNonSigners, addedPublicKeys, false, true)
+func EncodeEpochToBytesCIP22(epochIndex uint16, blockHash, parentHash EpochEntropy, maximumNonSigners uint32, addedPublicKeys []*PublicKey) ([]byte, []byte, error) {
+	return encodeEpochToBytesCIP22(epochIndex, blockHash, parentHash, maximumNonSigners, addedPublicKeys, false)
 }
 
 // EncodeEpochToBytesWithoutEntropy encodes the deprecated epoch message data format where no unpredictability is included.
 // It is to be used until the hard fork is active to use the new format.
 // Note: Because this only effects active participants in consensus, it may be safely removed after the hard fork is active.
-func EncodeEpochToBytesWithoutEntropy(epochIndex uint16, maximumNonSigners uint32, addedPublicKeys []*PublicKey) ([]byte, error) {
-	return encodeEpochToBytes(epochIndex, EpochEntropy{}, EpochEntropy{}, maximumNonSigners, addedPublicKeys, false, false)
+func EncodeEpochToBytes(epochIndex uint16, maximumNonSigners uint32, addedPublicKeys []*PublicKey) ([]byte, error) {
+	return encodeEpochToBytes(epochIndex, maximumNonSigners, addedPublicKeys, false)
 }
 
-func EncodeEpochToBytesWithAggregatedKey(epochIndex uint16, blockHash, parentHash EpochEntropy, maximumNonSigners uint32, addedPublicKeys []*PublicKey) ([]byte, error) {
-	return encodeEpochToBytes(epochIndex, blockHash, parentHash, maximumNonSigners, addedPublicKeys, true, true)
-}
