@@ -24,6 +24,8 @@ type EpochBlock struct {
 	Index uint16
 	/// Max non signers per block
 	MaxNonSigners uint32
+	/// Max validators per block
+	MaxValidators uint
 	/// Epoch entropy value
 	EpochEntropy []byte
 	/// Parent entropy value
@@ -65,6 +67,7 @@ func VerifyEpochs(
 	firstEpochRaw := C.EpochBlockFFI{
 		index:               C.ushort(firstEpoch.Index),
 		maximum_non_signers: C.uint(firstEpoch.MaxNonSigners),
+		maximum_validators:  C.ulong(firstEpoch.MaxValidators),
 		epoch_entropy:		 firstEpochEntropyPtr,
 		parent_entropy:		 firstParentEntropyPtr,
 		pubkeys_num:         C.ulong(len(firstEpoch.PublicKeys)),
@@ -77,6 +80,7 @@ func VerifyEpochs(
 	lastEpochRaw := C.EpochBlockFFI{
 		index:               C.ushort(lastEpoch.Index),
 		maximum_non_signers: C.uint(lastEpoch.MaxNonSigners),
+		maximum_validators:  C.ulong(lastEpoch.MaxValidators),
 		epoch_entropy:		 lastEpochEntropyPtr,
 		parent_entropy:		 lastParentEntropyPtr,
 		pubkeys_num:         C.ulong(len(lastEpoch.PublicKeys)),

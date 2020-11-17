@@ -32,6 +32,10 @@ typedef struct {
    * Maximum number of non signers for that epoch
    */
   uint32_t maximum_non_signers;
+  /**
+   * Maximum number of validators to pad to
+   */
+  uintptr_t maximum_validators;
 } EpochBlockFFI;
 
 /**

@@ -145,12 +145,12 @@ func (self *PrivateKey) ToPublic() (*PublicKey, error) {
 	return publicKey, nil
 }
 
-func (self *PrivateKey) SignMessage(message []byte, extraData []byte, shouldUseCompositeHasher bool) (*Signature, error) {
+func (self *PrivateKey) SignMessage(message []byte, extraData []byte, shouldUseCompositeHasher, shouldUseCIP22 bool) (*Signature, error) {
 	signature := &Signature{}
 	messagePtr, messageLen := sliceToPtr(message)
 	extraDataPtr, extraDataLen := sliceToPtr(extraData)
 
-	success := C.sign_message(self.ptr, messagePtr, messageLen, extraDataPtr, extraDataLen, C.bool(shouldUseCompositeHasher), &signature.ptr)
+	success := C.sign_message(self.ptr, messagePtr, messageLen, extraDataPtr, extraDataLen, C.bool(shouldUseCompositeHasher), C.bool(shouldUseCIP22), &signature.ptr)
 	if !success {
 		return nil, GeneralError
 	}
@@ -289,7 +289,7 @@ func toBuffer(data []byte) C.Buffer {
 }
 
 /// Performs batch BLS signature verification over a list of epochs
-func BatchVerifyEpochs(signedHeaders []*SignedBlockHeader, shouldUseCompositeHasher bool) error {
+func BatchVerifyEpochs(signedHeaders []*SignedBlockHeader, shouldUseCompositeHasher, shouldUseCIP22 bool) error {
 	var verified C.bool
 	msg_len := len(signedHeaders)
 
@@ -321,6 +321,7 @@ func BatchVerifyEpochs(signedHeaders []*SignedBlockHeader, shouldUseCompositeHas
 		(*C.MessageFFI)(messages_ptr),
 		C.int(msg_len),
 		C.bool(shouldUseCompositeHasher),
+		C.bool(shouldUseCIP22),
 		&verified,
 	)
 
@@ -335,7 +336,7 @@ func BatchVerifyEpochs(signedHeaders []*SignedBlockHeader, shouldUseCompositeHas
 	return nil
 }
 
-func (self *PublicKey) VerifySignature(message []byte, extraData []byte, signature *Signature, shouldUseCompositeHasher bool) error {
+func (self *PublicKey) VerifySignature(message []byte, extraData []byte, signature *Signature, shouldUseCompositeHasher, shouldUseCIP22 bool) error {
 	var verified C.bool
 
 	if signature == nil {
@@ -345,7 +346,7 @@ func (self *PublicKey) VerifySignature(message []byte, extraData []byte, signatu
 	messagePtr, messageLen := sliceToPtr(message)
 	extraDataPtr, extraDataLen := sliceToPtr(extraData)
 
-	success := C.verify_signature(self.ptr, messagePtr, messageLen, extraDataPtr, extraDataLen, signature.ptr, C.bool(shouldUseCompositeHasher), &verified)
+	success := C.verify_signature(self.ptr, messagePtr, messageLen, extraDataPtr, extraDataLen, signature.ptr, C.bool(shouldUseCompositeHasher), C.bool(shouldUseCIP22), &verified)
 	if !success {
 		return GeneralError
 	}
@@ -478,7 +479,7 @@ func AggregateSignatures(signatures []*Signature) (*Signature, error) {
 	return aggregatedSignature, nil
 }
 
-func encodeEpochToBytesCIP22(epochIndex uint16, blockHash, parentHash EpochEntropy, maximumNonSigners uint32, addedPublicKeys []*PublicKey) ([]byte, []byte, error) {
+func encodeEpochToBytesCIP22(epochIndex uint16, blockHash, parentHash EpochEntropy, maximumNonSigners, maximumValidators uint32, addedPublicKeys []*PublicKey) ([]byte, []byte, error) {
 	if len(addedPublicKeys) == 0 {
 		return nil, nil, EmptySliceError
 	}
@@ -503,6 +504,7 @@ func encodeEpochToBytesCIP22(epochIndex uint16, blockHash, parentHash EpochEntro
 		blockHashPtr,
 		parentHashPtr,
 		C.uint(maximumNonSigners),
+		C.uint(maximumValidators),
 		(**C.struct_PublicKey)(unsafe.Pointer(&publicKeysPtrs[0])),
 		C.int(len(publicKeysPtrs)),
 		&bytes,
@@ -562,8 +564,8 @@ func encodeEpochToBytes(epochIndex uint16, maximumNonSigners uint32, addedPublic
 	return goBytes, nil
 }
 
-func EncodeEpochToBytesCIP22(epochIndex uint16, blockHash, parentHash EpochEntropy, maximumNonSigners uint32, addedPublicKeys []*PublicKey) ([]byte, []byte, error) {
-	return encodeEpochToBytesCIP22(epochIndex, blockHash, parentHash, maximumNonSigners, addedPublicKeys)
+func EncodeEpochToBytesCIP22(epochIndex uint16, blockHash, parentHash EpochEntropy, maximumNonSigners, maximumValidators uint32, addedPublicKeys []*PublicKey) ([]byte, []byte, error) {
+	return encodeEpochToBytesCIP22(epochIndex, blockHash, parentHash, maximumNonSigners, maximumValidators, addedPublicKeys)
 }
 
 // EncodeEpochToBytesWithoutEntropy encodes the deprecated epoch message data format where no unpredictability is included.

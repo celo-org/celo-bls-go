@@ -33,12 +33,14 @@ func TestVerify(t *testing.T) {
 	}
 
 	pk1, _ := hex.DecodeString(first_epoch_pubkeys)
+	publicKeys := split(pk1, PUBLIC_KEY_BYTES)
 	epoch1 := EpochBlock{
 		Index:         0,
 		MaxNonSigners: 1,
+		MaxValidators: uint(len(publicKeys)),
 		EpochEntropy: epoch1EpochEntropy,
 		ParentEntropy: epoch1ParentEntropy,
-		PublicKeys:    split(pk1, PUBLIC_KEY_BYTES),
+		PublicKeys:    publicKeys,
 	}
 
 	epoch2EpochEntropy := make([]byte, 16)
@@ -52,6 +54,7 @@ func TestVerify(t *testing.T) {
 	epoch2 := EpochBlock{
 		Index:         2,
 		MaxNonSigners: 1,
+		MaxValidators: uint(len(publicKeys)),
 		EpochEntropy: epoch2EpochEntropy,
 		ParentEntropy: epoch2ParentEntropy,
 		PublicKeys:    split(pk2, PUBLIC_KEY_BYTES),
