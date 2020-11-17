@@ -80,11 +80,11 @@ jobs:
     steps:
       - attach_workspace:
           at: ~/app
-      - setup-sccache
-      - restore-sccache-cache
       - run:
           name: Install rustup
           command: curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+      - setup-sccache
+      - restore-sccache-cache
       - run:
           name: Build release libs
           command: |
