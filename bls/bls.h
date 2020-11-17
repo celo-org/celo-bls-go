@@ -144,6 +144,8 @@ bool serialize_private_key(const PrivateKey *in_private_key, uint8_t **out_bytes
 
 bool serialize_public_key(const PublicKey *in_public_key, uint8_t **out_bytes, int *out_len);
 
+bool serialize_public_key_uncompressed(const PublicKey *in_public_key, uint8_t **out_bytes, int *out_len);
+
 bool serialize_signature(const Signature *in_signature, uint8_t **out_bytes, int *out_len);
 
 bool sign_message(const PrivateKey *in_private_key,
