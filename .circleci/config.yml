@@ -40,7 +40,7 @@ commands:
           # See https://discuss.circleci.com/t/add-mechanism-to-update-existing-cache-key/9014/13
           key: sccache-cache-stable-{{ arch }}-{{ .Environment.CIRCLE_JOB }}-{{ epoch }}
           paths:
-            - "~/.cache/sccache"
+            - "~/Library/Caches/sccache"
 
 jobs:
   checkout-repo:
