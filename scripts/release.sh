@@ -70,7 +70,6 @@ cargo strip --target x86_64-pc-windows-gnu
 cargo build --target=x86_64-unknown-linux-musl --release
 cargo strip --target x86_64-unknown-linux-musl
 cargo lipo --release --targets=aarch64-apple-ios,x86_64-apple-ios
-strip target/universal/release/libbls_snark_sys.a
 
 popd 
 
