@@ -7,7 +7,7 @@ then
     exit 0
 fi
 
-pushd celo-bls-snark-rs
+pushd celo-bls-snark-rs/crates/bls-snark-sys
 
 export RUSTFLAGS="-Ccodegen-units=1"
 rustup default 1.47.0
