@@ -3,7 +3,7 @@
 package snark
 
 /*
-#cgo LDFLAGS: ${SRCDIR}/../libs/x86_64-unknown-linux-musl/libbls_snark_sys.so -ldl -lm
+#cgo LDFLAGS: -L${SRCDIR}/../libs/x86_64-unknown-linux-musl -lbls_snark_sys -ldl -lm
 */
 import "C"
 
