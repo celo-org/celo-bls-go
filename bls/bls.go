@@ -10,18 +10,23 @@ import (
 	"unsafe"
 )
 
-const MODULUS377 = "8444461749428370424248824938781546531375899335154063827935233455917409239041"
-const MODULUSBITS = 253
-const MODULUSMASK = 31 // == 2**(253-(256-8)) - 1
-const PRIVATEKEYBYTES = 32
-const PUBLICKEYBYTES = 96
-const SIGNATUREBYTES = 48
+const (
+	MODULUS377        = "8444461749428370424248824938781546531375899335154063827935233455917409239041"
+	MODULUSBITS       = 253
+	MODULUSMASK       = 31 // == 2**(253-(256-8)) - 1
+	PRIVATEKEYBYTES   = 32
+	PUBLICKEYBYTES    = 96
+	SIGNATUREBYTES    = 48
+	EPOCHENTROPYBYTES = 16
+)
 
-var GeneralError = errors.New("General error")
-var NotVerifiedError = errors.New("Not verified")
-var IncorrectSizeError = errors.New("Input had incorrect size")
-var NilPointerError = errors.New("Pointer was nil")
-var EmptySliceError = errors.New("Slice was empty")
+var (
+	GeneralError       = errors.New("General error")
+	NotVerifiedError   = errors.New("Not verified")
+	IncorrectSizeError = errors.New("Input had incorrect size")
+	NilPointerError    = errors.New("Pointer was nil")
+	EmptySliceError    = errors.New("Slice was empty")
+)
 
 func validatePrivateKey(privateKey []byte) error {
 	if len(privateKey) != PRIVATEKEYBYTES {
@@ -78,6 +83,10 @@ type SignedBlockHeader struct {
 	/// The aggregate signature for this epoch
 	Sig *Signature
 }
+
+// EpochEntropy is a string of unprediactable bytes included in the epoch SNARK data
+// to make prediction of future epoch message values infeasible.
+type EpochEntropy [EPOCHENTROPYBYTES]byte
 
 func InitBLSCrypto() {
 	C.init()
@@ -136,12 +145,12 @@ func (self *PrivateKey) ToPublic() (*PublicKey, error) {
 	return publicKey, nil
 }
 
-func (self *PrivateKey) SignMessage(message []byte, extraData []byte, shouldUseCompositeHasher bool) (*Signature, error) {
+func (self *PrivateKey) SignMessage(message []byte, extraData []byte, shouldUseCompositeHasher, shouldUseCIP22 bool) (*Signature, error) {
 	signature := &Signature{}
 	messagePtr, messageLen := sliceToPtr(message)
 	extraDataPtr, extraDataLen := sliceToPtr(extraData)
 
-	success := C.sign_message(self.ptr, messagePtr, messageLen, extraDataPtr, extraDataLen, C.bool(shouldUseCompositeHasher), &signature.ptr)
+	success := C.sign_message(self.ptr, messagePtr, messageLen, extraDataPtr, extraDataLen, C.bool(shouldUseCompositeHasher), C.bool(shouldUseCIP22), &signature.ptr)
 	if !success {
 		return nil, GeneralError
 	}
@@ -267,6 +276,22 @@ func (self *PublicKey) Serialize() ([]byte, error) {
 	return goBytes, nil
 }
 
+func (self *PublicKey) SerializeUncompressed() ([]byte, error) {
+	var bytes *C.uchar
+	var size C.int
+	success := C.serialize_public_key_uncompressed(self.ptr, &bytes, &size)
+	if !success {
+		return nil, GeneralError
+	}
+
+	goBytes := C.GoBytes(unsafe.Pointer(bytes), size)
+	success = C.free_vec(bytes, size)
+	if !success {
+		return nil, GeneralError
+	}
+	return goBytes, nil
+}
+
 func (self *PublicKey) Destroy() bool {
 	return bool(C.destroy_public_key(self.ptr))
 }
@@ -280,7 +305,7 @@ func toBuffer(data []byte) C.Buffer {
 }
 
 /// Performs batch BLS signature verification over a list of epochs
-func BatchVerifyEpochs(signedHeaders []*SignedBlockHeader, shouldUseCompositeHasher bool) error {
+func BatchVerifyEpochs(signedHeaders []*SignedBlockHeader, shouldUseCompositeHasher, shouldUseCIP22 bool) error {
 	var verified C.bool
 	msg_len := len(signedHeaders)
 
@@ -312,6 +337,7 @@ func BatchVerifyEpochs(signedHeaders []*SignedBlockHeader, shouldUseCompositeHas
 		(*C.MessageFFI)(messages_ptr),
 		C.int(msg_len),
 		C.bool(shouldUseCompositeHasher),
+		C.bool(shouldUseCIP22),
 		&verified,
 	)
 
@@ -326,7 +352,7 @@ func BatchVerifyEpochs(signedHeaders []*SignedBlockHeader, shouldUseCompositeHas
 	return nil
 }
 
-func (self *PublicKey) VerifySignature(message []byte, extraData []byte, signature *Signature, shouldUseCompositeHasher bool) error {
+func (self *PublicKey) VerifySignature(message []byte, extraData []byte, signature *Signature, shouldUseCompositeHasher, shouldUseCIP22 bool) error {
 	var verified C.bool
 
 	if signature == nil {
@@ -336,7 +362,7 @@ func (self *PublicKey) VerifySignature(message []byte, extraData []byte, signatu
 	messagePtr, messageLen := sliceToPtr(message)
 	extraDataPtr, extraDataLen := sliceToPtr(extraData)
 
-	success := C.verify_signature(self.ptr, messagePtr, messageLen, extraDataPtr, extraDataLen, signature.ptr, C.bool(shouldUseCompositeHasher), &verified)
+	success := C.verify_signature(self.ptr, messagePtr, messageLen, extraDataPtr, extraDataLen, signature.ptr, C.bool(shouldUseCompositeHasher), C.bool(shouldUseCIP22), &verified)
 	if !success {
 		return GeneralError
 	}
@@ -469,7 +495,57 @@ func AggregateSignatures(signatures []*Signature) (*Signature, error) {
 	return aggregatedSignature, nil
 }
 
-func encodeEpochToBytes(epochIndex uint16, maximumNonSigners uint32, addedPublicKeys []*PublicKey, shouldEncodeAggregatedPublicKey bool) ([]byte, error) {
+func encodeEpochToBytesCIP22(epochIndex uint16, blockHash, parentHash EpochEntropy, maximumNonSigners, maximumValidators uint32, addedPublicKeys []*PublicKey) ([]byte, []byte, error) {
+	if len(addedPublicKeys) == 0 {
+		return nil, nil, EmptySliceError
+	}
+
+	publicKeysPtrs := []*C.struct_PublicKey{}
+	for _, pk := range addedPublicKeys {
+		if pk == nil {
+			return nil, nil, NilPointerError
+		}
+		publicKeysPtrs = append(publicKeysPtrs, pk.ptr)
+	}
+
+	blockHashPtr := (*C.uchar)(&blockHash[0])
+	parentHashPtr := (*C.uchar)(&parentHash[0])
+
+	var bytes *C.uchar
+	var size C.int
+	var extraDataBytes *C.uchar
+	var extraDataSize C.int
+	success := C.encode_epoch_block_to_bytes_cip22(
+		C.ushort(epochIndex),
+		blockHashPtr,
+		parentHashPtr,
+		C.uint(maximumNonSigners),
+		C.uint(maximumValidators),
+		(**C.struct_PublicKey)(unsafe.Pointer(&publicKeysPtrs[0])),
+		C.int(len(publicKeysPtrs)),
+		&bytes,
+		&size,
+		&extraDataBytes,
+		&extraDataSize,
+	)
+	if !success {
+		return nil, nil, GeneralError
+	}
+
+	goBytes := C.GoBytes(unsafe.Pointer(bytes), size)
+	success = C.free_vec(bytes, size)
+	if !success {
+		return nil, nil, GeneralError
+	}
+	goExtraDataBytes := C.GoBytes(unsafe.Pointer(extraDataBytes), size)
+	success = C.free_vec(extraDataBytes, extraDataSize)
+	if !success {
+		return nil, nil, GeneralError
+	}
+	return goBytes, goExtraDataBytes, nil
+}
+
+func encodeEpochToBytes(epochIndex uint16, maximumNonSigners uint32, addedPublicKeys []*PublicKey) ([]byte, error) {
 	if len(addedPublicKeys) == 0 {
 		return nil, EmptySliceError
 	}
@@ -481,9 +557,17 @@ func encodeEpochToBytes(epochIndex uint16, maximumNonSigners uint32, addedPublic
 		}
 		publicKeysPtrs = append(publicKeysPtrs, pk.ptr)
 	}
+
 	var bytes *C.uchar
 	var size C.int
-	success := C.encode_epoch_block_to_bytes(C.ushort(epochIndex), C.uint(maximumNonSigners), (**C.struct_PublicKey)(unsafe.Pointer(&publicKeysPtrs[0])), C.int(len(publicKeysPtrs)), C.bool(shouldEncodeAggregatedPublicKey), &bytes, &size)
+	success := C.encode_epoch_block_to_bytes(
+		C.ushort(epochIndex),
+		C.uint(maximumNonSigners),
+		(**C.struct_PublicKey)(unsafe.Pointer(&publicKeysPtrs[0])),
+		C.int(len(publicKeysPtrs)),
+		&bytes,
+		&size,
+	)
 	if !success {
 		return nil, GeneralError
 	}
@@ -496,10 +580,14 @@ func encodeEpochToBytes(epochIndex uint16, maximumNonSigners uint32, addedPublic
 	return goBytes, nil
 }
 
-func EncodeEpochToBytes(epochIndex uint16, maximumNonSigners uint32, addedPublicKeys []*PublicKey) ([]byte, error) {
-	return encodeEpochToBytes(epochIndex, maximumNonSigners, addedPublicKeys, false)
+func EncodeEpochToBytesCIP22(epochIndex uint16, blockHash, parentHash EpochEntropy, maximumNonSigners, maximumValidators uint32, addedPublicKeys []*PublicKey) ([]byte, []byte, error) {
+	return encodeEpochToBytesCIP22(epochIndex, blockHash, parentHash, maximumNonSigners, maximumValidators, addedPublicKeys)
 }
 
-func EncodeEpochToBytesWithAggregatedKey(epochIndex uint16, maximumNonSigners uint32, addedPublicKeys []*PublicKey) ([]byte, error) {
-	return encodeEpochToBytes(epochIndex, maximumNonSigners, addedPublicKeys, true)
+// EncodeEpochToBytesWithoutEntropy encodes the deprecated epoch message data format where no unpredictability is included.
+// It is to be used until the hard fork is active to use the new format.
+// Note: Because this only effects active participants in consensus, it may be safely removed after the hard fork is active.
+func EncodeEpochToBytes(epochIndex uint16, maximumNonSigners uint32, addedPublicKeys []*PublicKey) ([]byte, error) {
+	return encodeEpochToBytes(epochIndex, maximumNonSigners, addedPublicKeys)
 }
+

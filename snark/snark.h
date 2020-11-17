@@ -13,6 +13,14 @@ typedef struct {
    */
   uint16_t index;
   /**
+   * Pointer to the epoch entropy value
+   */
+  const uint8_t *epoch_entropy;
+  /**
+   * Pointer to the parent entropy value
+   */
+  const uint8_t *parent_entropy;
+  /**
    * Pointer to the public keys array
    */
   const uint8_t *pubkeys;
@@ -24,6 +32,10 @@ typedef struct {
    * Maximum number of non signers for that epoch
    */
   uint32_t maximum_non_signers;
+  /**
+   * Maximum number of validators to pad to
+   */
+  uintptr_t maximum_validators;
 } EpochBlockFFI;
 
 /**

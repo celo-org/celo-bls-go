@@ -7,7 +7,7 @@ import (
 	"testing"
 )
 
-func generateTestData(numEpochs int, numValidators int, mode bool) []*SignedBlockHeader {
+func generateTestData(numEpochs int, numValidators int, composite, cip22 bool) []*SignedBlockHeader {
 	var headers []*SignedBlockHeader
 	for i := 0; i < numEpochs; i++ {
 		message := []byte(fmt.Sprintf("msg_%d", i))
@@ -19,7 +19,7 @@ func generateTestData(numEpochs int, numValidators int, mode bool) []*SignedBloc
 			privateKey, _ := GeneratePrivateKey()
 
 			// sign each message
-			signature, _ := privateKey.SignMessage(message, extraData, mode)
+			signature, _ := privateKey.SignMessage(message, extraData, composite, cip22)
 			// save the sig to generate the epoch's asig
 			epoch_sigs = append(epoch_sigs, signature)
 
@@ -44,13 +44,14 @@ func generateTestData(numEpochs int, numValidators int, mode bool) []*SignedBloc
 }
 
 func BenchmarkBlsBatch(b *testing.B) {
-	mode := false
-	headers := generateTestData(10, 10, mode)
+	composite := false
+	cip22 := false
+	headers := generateTestData(10, 10, composite, cip22)
 
 	b.Run("individual", func(b *testing.B) {
 		for n := 0; n < b.N; n++ {
 			for _, h := range headers {
-				err := h.Pubkey.VerifySignature(h.Data, h.Extra, h.Sig, mode)
+				err := h.Pubkey.VerifySignature(h.Data, h.Extra, h.Sig, composite, cip22)
 				if err != nil {
 					panic("sig verification should not fail")
 				}
@@ -60,7 +61,7 @@ func BenchmarkBlsBatch(b *testing.B) {
 
 	b.Run("batched", func(b *testing.B) {
 		for n := 0; n < b.N; n++ {
-			err := BatchVerifyEpochs(headers, mode)
+			err := BatchVerifyEpochs(headers, composite, cip22)
 			if err != nil {
 				panic("sig verification should not fail")
 			}
@@ -72,14 +73,15 @@ func BenchmarkBlsBatch(b *testing.B) {
 func TestBatchVerify(t *testing.T) {
 	InitBLSCrypto()
 
-	testBatchVerify(t, true)
-	testBatchVerify(t, false)
+	testBatchVerify(t, true, true)
+	testBatchVerify(t, true, false)
+	testBatchVerify(t, false, false)
 }
 
-func testBatchVerify(t *testing.T, mode bool) {
-	msgs := generateTestData(10, 7, mode)
+func testBatchVerify(t *testing.T, composite, cip22 bool) {
+	msgs := generateTestData(10, 7, composite, cip22)
 
-	err := BatchVerifyEpochs(msgs, mode)
+	err := BatchVerifyEpochs(msgs, composite, cip22)
 	if err != nil {
 		t.Fatalf("batch verification failed, err: %s", err)
 	}
@@ -92,36 +94,38 @@ func TestAggregatedSig(t *testing.T) {
 	publicKey, _ := privateKey.ToPublic()
 	message := []byte("test")
 	extraData := []byte("extra")
-	signature, _ := privateKey.SignMessage(message, extraData, true)
-	err := publicKey.VerifySignature(message, extraData, signature, true)
-	if err != nil {
-		t.Fatalf("failed verifying signature for pk 1, error was: %s", err)
-	}
+	for _, cip22 := range []bool{ false, true } {
+		signature, _ := privateKey.SignMessage(message, extraData, true, cip22)
+		err := publicKey.VerifySignature(message, extraData, signature, true, cip22)
+		if err != nil {
+			t.Fatalf("failed verifying signature for pk 1, error was: %s", err)
+		}
 
-	privateKey2, _ := GeneratePrivateKey()
-	defer privateKey2.Destroy()
-	publicKey2, _ := privateKey2.ToPublic()
-	signature2, _ := privateKey2.SignMessage(message, extraData, true)
-	err = publicKey2.VerifySignature(message, extraData, signature2, true)
-	if err != nil {
-		t.Fatalf("failed verifying signature for pk 2, error was: %s", err)
-	}
+		privateKey2, _ := GeneratePrivateKey()
+		defer privateKey2.Destroy()
+		publicKey2, _ := privateKey2.ToPublic()
+		signature2, _ := privateKey2.SignMessage(message, extraData, true, cip22)
+		err = publicKey2.VerifySignature(message, extraData, signature2, true, cip22)
+		if err != nil {
+			t.Fatalf("failed verifying signature for pk 2, error was: %s", err)
+		}
 
-	aggergatedPublicKey, _ := AggregatePublicKeys([]*PublicKey{publicKey, publicKey2})
-	aggergatedSignature, _ := AggregateSignatures([]*Signature{signature, signature2})
-	err = aggergatedPublicKey.VerifySignature(message, extraData, aggergatedSignature, true)
-	if err != nil {
-		t.Fatalf("failed verifying signature for aggregated pk, error was: %s", err)
-	}
-	err = publicKey.VerifySignature(message, extraData, aggergatedSignature, true)
-	if err == nil {
-		t.Fatalf("succeeded verifying signature for wrong pk, shouldn't have!")
-	}
+		aggergatedPublicKey, _ := AggregatePublicKeys([]*PublicKey{publicKey, publicKey2})
+		aggergatedSignature, _ := AggregateSignatures([]*Signature{signature, signature2})
+		err = aggergatedPublicKey.VerifySignature(message, extraData, aggergatedSignature, true, cip22)
+		if err != nil {
+			t.Fatalf("failed verifying signature for aggregated pk, error was: %s", err)
+		}
+		err = publicKey.VerifySignature(message, extraData, aggergatedSignature, true, cip22)
+		if err == nil {
+			t.Fatalf("succeeded verifying signature for wrong pk, shouldn't have!")
+		}
 
-	subtractedPublicKey, _ := AggregatePublicKeysSubtract(aggergatedPublicKey, []*PublicKey{publicKey2})
-	err = subtractedPublicKey.VerifySignature(message, extraData, signature, true)
-	if err != nil {
-		t.Fatalf("failed verifying signature for subtractedPublicKey pk, error was: %s", err)
+		subtractedPublicKey, _ := AggregatePublicKeysSubtract(aggergatedPublicKey, []*PublicKey{publicKey2})
+		err = subtractedPublicKey.VerifySignature(message, extraData, signature, true, cip22)
+		if err != nil {
+			t.Fatalf("failed verifying signature for subtractedPublicKey pk, error was: %s", err)
+		}
 	}
 }
 
@@ -155,8 +159,8 @@ func TestNonCompositeSig(t *testing.T) {
 	publicKey, _ := privateKey.ToPublic()
 	message := []byte("test")
 	extraData := []byte("extra")
-	signature, _ := privateKey.SignMessage(message, extraData, false)
-	err := publicKey.VerifySignature(message, extraData, signature, false)
+	signature, _ := privateKey.SignMessage(message, extraData, false, false)
+	err := publicKey.VerifySignature(message, extraData, signature, false, false)
 	if err != nil {
 		t.Fatalf("failed verifying signature for pk 1, error was: %s", err)
 	}
@@ -164,22 +168,43 @@ func TestNonCompositeSig(t *testing.T) {
 	privateKey2, _ := GeneratePrivateKey()
 	defer privateKey2.Destroy()
 	publicKey2, _ := privateKey2.ToPublic()
-	signature2, _ := privateKey2.SignMessage(message, extraData, false)
-	err = publicKey2.VerifySignature(message, extraData, signature2, false)
+	signature2, _ := privateKey2.SignMessage(message, extraData, false, false)
+	err = publicKey2.VerifySignature(message, extraData, signature2, false, false)
 	if err != nil {
 		t.Fatalf("failed verifying signature for pk 2, error was: %s", err)
 	}
 
 	aggergatedPublicKey, _ := AggregatePublicKeys([]*PublicKey{publicKey, publicKey2})
 	aggergatedSignature, _ := AggregateSignatures([]*Signature{signature, signature2})
-	err = aggergatedPublicKey.VerifySignature(message, extraData, aggergatedSignature, false)
+	err = aggergatedPublicKey.VerifySignature(message, extraData, aggergatedSignature, false, false)
 	if err != nil {
 		t.Fatalf("failed verifying signature for aggregated pk, error was: %s", err)
 	}
-	err = publicKey.VerifySignature(message, extraData, aggergatedSignature, false)
+	err = publicKey.VerifySignature(message, extraData, aggergatedSignature, false, false)
 	if err == nil {
 		t.Fatalf("succeeded verifying signature for wrong pk, shouldn't have!")
 	}
+}
+
+func TestEncodingCIP22(t *testing.T) {
+	InitBLSCrypto()
+	privateKey, _ := GeneratePrivateKey()
+	defer privateKey.Destroy()
+	publicKey, _ := privateKey.ToPublic()
+
+	privateKey2, _ := GeneratePrivateKey()
+	defer privateKey2.Destroy()
+	publicKey2, _ := privateKey2.ToPublic()
+
+	var blockHash, parentHash EpochEntropy
+	copy(blockHash[:], "foo")
+	copy(parentHash[:], "bar")
+
+	bytes, extraData, err := EncodeEpochToBytesCIP22(10, blockHash, parentHash, 20, 2, []*PublicKey{publicKey, publicKey2})
+	if err != nil {
+		t.Fatalf("failed encoding epoch bytes")
+	}
+	t.Logf("encoding: %s, %s\n", hex.EncodeToString(bytes), hex.EncodeToString(extraData))
 }
 
 func TestEncoding(t *testing.T) {
@@ -192,18 +217,9 @@ func TestEncoding(t *testing.T) {
 	defer privateKey2.Destroy()
 	publicKey2, _ := privateKey2.ToPublic()
 
-	bytes, err := EncodeEpochToBytes(10, 20, []*PublicKey{publicKey, publicKey2})
+	_, err := EncodeEpochToBytes(10, 20, []*PublicKey{publicKey, publicKey2})
 	if err != nil {
 		t.Fatalf("failed encoding epoch bytes")
-	}
-	t.Logf("encoding: %s\n", hex.EncodeToString(bytes))
-	bytesWithApk, err := EncodeEpochToBytesWithAggregatedKey(10, 20, []*PublicKey{publicKey, publicKey2})
-	if err != nil {
-		t.Fatalf("failed encoding epoch bytes")
-	}
-	t.Logf("encoding with aggregated public key: %s\n", hex.EncodeToString(bytes))
-	if len(bytesWithApk) <= len(bytes) {
-		t.Fatalf("encoding with the aggregated public key should be larger")
 	}
 }
 
@@ -233,30 +249,32 @@ func TestAggregateSignaturesErrors(t *testing.T) {
 	defer privateKey.Destroy()
 	message := []byte("test")
 	extraData := []byte("extra")
-	signature, _ := privateKey.SignMessage(message, extraData, true)
+	for _, cip22 := range []bool{ false, true } {
+		signature, _ := privateKey.SignMessage(message, extraData, true, cip22)
 
-	_, err := AggregateSignatures([]*Signature{signature, nil})
-	if err != NilPointerError {
-		t.Fatalf("should have been a nil pointer")
-	}
-	_, err = AggregateSignatures([]*Signature{})
-	if err != EmptySliceError {
-		t.Fatalf("should have been an empty slice")
-	}
-	_, err = AggregateSignatures(nil)
-	if err != EmptySliceError {
-		t.Fatalf("should have been an empty slice")
+		_, err := AggregateSignatures([]*Signature{signature, nil})
+		if err != NilPointerError {
+			t.Fatalf("should have been a nil pointer")
+		}
+		_, err = AggregateSignatures([]*Signature{})
+		if err != EmptySliceError {
+			t.Fatalf("should have been an empty slice")
+		}
+		_, err = AggregateSignatures(nil)
+		if err != EmptySliceError {
+			t.Fatalf("should have been an empty slice")
+		}
 	}
 }
 
 func TestEncodeErrors(t *testing.T) {
 	InitBLSCrypto()
 
-	_, err := EncodeEpochToBytes(0, 0, []*PublicKey{})
+	_, _, err := EncodeEpochToBytesCIP22(0, EpochEntropy{}, EpochEntropy{}, 0, 2, []*PublicKey{})
 	if err != EmptySliceError {
 		t.Fatalf("should have been an empty slice")
 	}
-	_, err = EncodeEpochToBytes(0, 0, nil)
+	_, _, err = EncodeEpochToBytesCIP22(0, EpochEntropy{}, EpochEntropy{}, 0,2, nil)
 	if err != EmptySliceError {
 		t.Fatalf("should have been an empty slice")
 	}
@@ -281,14 +299,16 @@ func TestVerifySignatureErrors(t *testing.T) {
 	publicKey, _ := privateKey.ToPublic()
 	message := []byte("test")
 	extraData := []byte("extra")
-	err := publicKey.VerifySignature(message, extraData, nil, false)
-	if err != NilPointerError {
-		t.Fatalf("should have been a nil pointer")
-	}
+	for _, cip22 := range []bool{ false, true } {
+		err := publicKey.VerifySignature(message, extraData, nil, false, cip22)
+		if err != NilPointerError {
+			t.Fatalf("should have been a nil pointer")
+		}
 
-	err = publicKey.VerifySignature(message, extraData, nil, true)
-	if err != NilPointerError {
-		t.Fatalf("should have been a nil pointer")
+		err = publicKey.VerifySignature(message, extraData, nil, true, cip22)
+		if err != NilPointerError {
+			t.Fatalf("should have been a nil pointer")
+		}
 	}
 }
 

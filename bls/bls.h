@@ -73,6 +73,7 @@ bool aggregate_signatures(const Signature *const *in_signatures,
 bool batch_verify_signature(const MessageFFI *messages_ptr,
                             int messages_len,
                             bool should_use_composite,
+                            bool should_use_cip22,
                             bool *verified);
 
 bool compress_pubkey(const uint8_t *in_pubkey,
@@ -111,9 +112,20 @@ bool encode_epoch_block_to_bytes(unsigned short in_epoch_index,
                                  unsigned int in_maximum_non_signers,
                                  const PublicKey *const *in_added_public_keys,
                                  int in_added_public_keys_len,
-                                 bool in_should_encode_aggregated_pk,
                                  uint8_t **out_bytes,
                                  int *out_len);
+
+bool encode_epoch_block_to_bytes_cip22(unsigned short in_epoch_index,
+                                 uint8_t *block_hash,
+                                 uint8_t *parent_hash,
+                                 unsigned int in_maximum_non_signers,
+                                 unsigned int in_maximum_validators,
+                                 const PublicKey *const *in_added_public_keys,
+                                 int in_added_public_keys_len,
+                                 uint8_t **out_bytes,
+                                 int *out_len,
+                                 uint8_t **out_extra_data_bytes,
+                                 int *out_extra_data_len);
 
 
 bool free_vec(uint8_t *bytes, int len);
@@ -121,6 +133,13 @@ bool free_vec(uint8_t *bytes, int len);
 bool generate_private_key(PrivateKey **out_private_key);
 
 bool hash_composite(const uint8_t *in_message,
+                    int in_message_len,
+                    const uint8_t *in_extra_data,
+                    int in_extra_data_len,
+                    uint8_t **out_hash,
+                    int *out_len);
+
+bool hash_composite_cip22(const uint8_t *in_message,
                     int in_message_len,
                     const uint8_t *in_extra_data,
                     int in_extra_data_len,
@@ -144,6 +163,8 @@ bool serialize_private_key(const PrivateKey *in_private_key, uint8_t **out_bytes
 
 bool serialize_public_key(const PublicKey *in_public_key, uint8_t **out_bytes, int *out_len);
 
+bool serialize_public_key_uncompressed(const PublicKey *in_public_key, uint8_t **out_bytes, int *out_len);
+
 bool serialize_signature(const Signature *in_signature, uint8_t **out_bytes, int *out_len);
 
 bool sign_message(const PrivateKey *in_private_key,
@@ -152,6 +173,7 @@ bool sign_message(const PrivateKey *in_private_key,
                   const uint8_t *in_extra_data,
                   int in_extra_data_len,
                   bool should_use_composite,
+                  bool should_use_cip22,
                   Signature **out_signature);
 
 bool sign_pop(const PrivateKey *in_private_key,
@@ -172,4 +194,5 @@ bool verify_signature(const PublicKey *in_public_key,
                       int in_extra_data_len,
                       const Signature *in_signature,
                       bool should_use_composite,
+                      bool should_use_cip22,
                       bool *out_verified);
