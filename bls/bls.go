@@ -276,6 +276,22 @@ func (self *PublicKey) Serialize() ([]byte, error) {
 	return goBytes, nil
 }
 
+func (self *PublicKey) SerializeUncompressed() ([]byte, error) {
+	var bytes *C.uchar
+	var size C.int
+	success := C.serialize_public_key_uncompressed(self.ptr, &bytes, &size)
+	if !success {
+		return nil, GeneralError
+	}
+
+	goBytes := C.GoBytes(unsafe.Pointer(bytes), size)
+	success = C.free_vec(bytes, size)
+	if !success {
+		return nil, GeneralError
+	}
+	return goBytes, nil
+}
+
 func (self *PublicKey) Destroy() bool {
 	return bool(C.destroy_public_key(self.ptr))
 }
