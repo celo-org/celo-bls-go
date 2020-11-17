@@ -13,35 +13,6 @@ go_defaults: &go_defaults
   docker:
     - image: circleci/golang:latest
 
-commands:
-  setup-sccache:
-    steps:
-      - run:
-          name: Install sccache
-          command: |
-            cargo install sccache
-            # This configures Rust to use sccache.
-            echo 'export "RUSTC_WRAPPER"="sccache"' >> $BASH_ENV
-            # This is the maximum space sccache cache will use on disk.
-            echo 'export "SCCACHE_CACHE_SIZE"="1G"' >> $BASH_ENV
-            sccache --version
-  restore-sccache-cache:
-    steps:
-      - restore_cache:
-          name: Restore sccache cache
-          key: sccache-cache-stable-{{ arch }}-{{ .Environment.CIRCLE_JOB }}
-  save-sccache-cache:
-    steps:
-      - save_cache:
-          name: Save sccache cache
-          # We use {{ epoch }} to always upload a fresh cache:
-          # Of course, restore_cache will not find this exact key,
-          # but it will fall back to the closest key (aka the most recent).
-          # See https://discuss.circleci.com/t/add-mechanism-to-update-existing-cache-key/9014/13
-          key: sccache-cache-stable-{{ arch }}-{{ .Environment.CIRCLE_JOB }}-{{ epoch }}
-          paths:
-            - "~/Library/Caches/sccache"
-
 jobs:
   checkout-repo:
     <<: *go_defaults
@@ -83,8 +54,6 @@ jobs:
       - run:
           name: Install rustup
           command: curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
-      - setup-sccache
-      - restore-sccache-cache
       - run:
           name: Build release libs
           command: |
@@ -95,7 +64,6 @@ jobs:
       - persist_to_workspace:
           root: .
           paths: .
-      - save-sccache-cache
 
 workflows:
   version: 2
