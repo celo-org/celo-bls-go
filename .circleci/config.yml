@@ -47,6 +47,7 @@ jobs:
     working_directory: ~/app
     macos:
       xcode: 11.4.0
+    resource_class: xlarge
     steps:
       - attach_workspace:
           at: ~/app
