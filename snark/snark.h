@@ -13,6 +13,10 @@ typedef struct {
    */
   uint16_t index;
   /**
+   * The round number from consensus
+   */
+  uint8_t round;
+  /**
    * Pointer to the epoch entropy value
    */
   const uint8_t *epoch_entropy;

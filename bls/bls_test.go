@@ -200,7 +200,7 @@ func TestEncodingCIP22(t *testing.T) {
 	copy(blockHash[:], "foo")
 	copy(parentHash[:], "bar")
 
-	bytes, extraData, err := EncodeEpochToBytesCIP22(10, blockHash, parentHash, 20, 2, []*PublicKey{publicKey, publicKey2})
+	bytes, extraData, err := EncodeEpochToBytesCIP22(10, 5, blockHash, parentHash, 20, 2, []*PublicKey{publicKey, publicKey2})
 	if err != nil {
 		t.Fatalf("failed encoding epoch bytes")
 	}
@@ -270,11 +270,11 @@ func TestAggregateSignaturesErrors(t *testing.T) {
 func TestEncodeErrors(t *testing.T) {
 	InitBLSCrypto()
 
-	_, _, err := EncodeEpochToBytesCIP22(0, EpochEntropy{}, EpochEntropy{}, 0, 2, []*PublicKey{})
+	_, _, err := EncodeEpochToBytesCIP22(0, 5, EpochEntropy{}, EpochEntropy{}, 0, 2, []*PublicKey{})
 	if err != EmptySliceError {
 		t.Fatalf("should have been an empty slice")
 	}
-	_, _, err = EncodeEpochToBytesCIP22(0, EpochEntropy{}, EpochEntropy{}, 0,2, nil)
+	_, _, err = EncodeEpochToBytesCIP22(0, 5, EpochEntropy{}, EpochEntropy{}, 0,2, nil)
 	if err != EmptySliceError {
 		t.Fatalf("should have been an empty slice")
 	}
