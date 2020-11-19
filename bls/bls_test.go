@@ -204,6 +204,9 @@ func TestEncodingCIP22(t *testing.T) {
 	if err != nil {
 		t.Fatalf("failed encoding epoch bytes")
 	}
+	if len(bytes) != 221 || len(extraData) != 7 {
+		t.Fatalf("wrong length for bytes (221 != %v) or for extra data (7 != %v)", len(bytes), len(extraData))
+	}
 	t.Logf("encoding: %s, %s\n", hex.EncodeToString(bytes), hex.EncodeToString(extraData))
 }
 

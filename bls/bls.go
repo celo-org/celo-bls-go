@@ -538,7 +538,7 @@ func encodeEpochToBytesCIP22(epochIndex uint16, round uint8, blockHash, parentHa
 	if !success {
 		return nil, nil, GeneralError
 	}
-	goExtraDataBytes := C.GoBytes(unsafe.Pointer(extraDataBytes), size)
+	goExtraDataBytes := C.GoBytes(unsafe.Pointer(extraDataBytes), extraDataSize)
 	success = C.free_vec(extraDataBytes, extraDataSize)
 	if !success {
 		return nil, nil, GeneralError
