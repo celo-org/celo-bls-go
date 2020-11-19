@@ -22,6 +22,8 @@ type VerifyingKey []byte
 type EpochBlock struct {
 	/// Index of the epoch
 	Index uint16
+	/// Round from consensus
+	Round uint8
 	/// Max non signers per block
 	MaxNonSigners uint32
 	/// Max validators per block

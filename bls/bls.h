@@ -116,6 +116,7 @@ bool encode_epoch_block_to_bytes(unsigned short in_epoch_index,
                                  int *out_len);
 
 bool encode_epoch_block_to_bytes_cip22(unsigned short in_epoch_index,
+                                 unsigned char in_round_number,
                                  uint8_t *block_hash,
                                  uint8_t *parent_hash,
                                  unsigned int in_maximum_non_signers,

@@ -495,7 +495,7 @@ func AggregateSignatures(signatures []*Signature) (*Signature, error) {
 	return aggregatedSignature, nil
 }
 
-func encodeEpochToBytesCIP22(epochIndex uint16, blockHash, parentHash EpochEntropy, maximumNonSigners, maximumValidators uint32, addedPublicKeys []*PublicKey) ([]byte, []byte, error) {
+func encodeEpochToBytesCIP22(epochIndex uint16, round uint8, blockHash, parentHash EpochEntropy, maximumNonSigners, maximumValidators uint32, addedPublicKeys []*PublicKey) ([]byte, []byte, error) {
 	if len(addedPublicKeys) == 0 {
 		return nil, nil, EmptySliceError
 	}
@@ -517,6 +517,7 @@ func encodeEpochToBytesCIP22(epochIndex uint16, blockHash, parentHash EpochEntro
 	var extraDataSize C.int
 	success := C.encode_epoch_block_to_bytes_cip22(
 		C.ushort(epochIndex),
+		C.uchar(round),
 		blockHashPtr,
 		parentHashPtr,
 		C.uint(maximumNonSigners),
@@ -580,8 +581,8 @@ func encodeEpochToBytes(epochIndex uint16, maximumNonSigners uint32, addedPublic
 	return goBytes, nil
 }
 
-func EncodeEpochToBytesCIP22(epochIndex uint16, blockHash, parentHash EpochEntropy, maximumNonSigners, maximumValidators uint32, addedPublicKeys []*PublicKey) ([]byte, []byte, error) {
-	return encodeEpochToBytesCIP22(epochIndex, blockHash, parentHash, maximumNonSigners, maximumValidators, addedPublicKeys)
+func EncodeEpochToBytesCIP22(epochIndex uint16, round uint8, blockHash, parentHash EpochEntropy, maximumNonSigners, maximumValidators uint32, addedPublicKeys []*PublicKey) ([]byte, []byte, error) {
+	return encodeEpochToBytesCIP22(epochIndex, round, blockHash, parentHash, maximumNonSigners, maximumValidators, addedPublicKeys)
 }
 
 // EncodeEpochToBytesWithoutEntropy encodes the deprecated epoch message data format where no unpredictability is included.
