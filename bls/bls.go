@@ -198,11 +198,11 @@ func HashComposite(message []byte, extraData []byte) ([]byte, error) {
 	return hash, nil
 }
 
-func HashCRH(message []byte) ([]byte, error) {
+func HashCRH(message []byte, hashBytes int32) ([]byte, error) {
 	messagePtr, messageLen := sliceToPtr(message)
 	var hashLen C.int
 	var hashPtr *C.uchar
-	success := C.hash_crh(messagePtr, messageLen, &hashPtr, &hashLen)
+	success := C.hash_crh(messagePtr, messageLen, C.int(hashBytes), &hashPtr, &hashLen)
 	if !success {
 		return nil, GeneralError
 	}

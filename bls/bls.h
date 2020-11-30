@@ -142,6 +142,7 @@ bool hash_composite(const uint8_t *in_message,
 
 bool hash_crh(const uint8_t *in_message,
                     int in_message_len,
+                    int hash_bytes,
                     uint8_t **out_hash,
                     int *out_len);
 
