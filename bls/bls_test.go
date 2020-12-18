@@ -331,3 +331,24 @@ func TestPublicKeySerialization(t *testing.T) {
 		t.Fatalf("public keys should have been equal")
 	}
 }
+
+func TestHashCRHTestVector(t *testing.T) {
+	InitBLSCrypto()
+	expectedHash := "955d45ca56cae9d4868f5ebb6921f5212f53ea795a8b0f9490452bf508cd8ab44cbb3fbf046fce68a69fc4f346e83e01"
+	decodedExpectedHash, _ := hex.DecodeString(expectedHash)
+	v, _ := HashCRH([]byte("hello"), 32)
+	if !bytes.Equal(v, decodedExpectedHash) {
+		t.Fatalf("v is different from expected: v=%v", hex.EncodeToString(v))
+	}
+}
+
+func TestHashCompositeCIP22TestVector(t *testing.T) {
+	InitBLSCrypto()
+	expectedHash := "02c4eab618a78cabd7a0718fd2433e5e1eb7e9119238186f24cefa9fe550ce093c134bd0d8c3bf36ac64226fbd551500c7551b353aba99ec3c2ec53378b5f8cc7abe3472669e472cbb93a51a5378df9f3dc1bf90f39e49a370e1101c39cd0d01804ed25d7b4f31c511ff8be190c1fc794b73671c1d2fb56aaa98157ff99b35fe8db4d311fa343abd8db5ae8b52538601"
+	decodedExpectedHash, _ := hex.DecodeString(expectedHash)
+	expectedCounter := uint8(1)
+	v, c, _ := HashCompositeCIP22([]byte{}, []byte{})
+	if c != expectedCounter || !bytes.Equal(v, decodedExpectedHash) {
+		t.Fatalf("v or c are different from expected: v=%v, c=%v", hex.EncodeToString(v), c)
+	}
+}

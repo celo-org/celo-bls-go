@@ -140,12 +140,19 @@ bool hash_composite(const uint8_t *in_message,
                     uint8_t **out_hash,
                     int *out_len);
 
+bool hash_crh(const uint8_t *in_message,
+                    int in_message_len,
+                    int hash_bytes,
+                    uint8_t **out_hash,
+                    int *out_len);
+
 bool hash_composite_cip22(const uint8_t *in_message,
                     int in_message_len,
                     const uint8_t *in_extra_data,
                     int in_extra_data_len,
                     uint8_t **out_hash,
-                    int *out_len);
+                    int *out_len,
+                    uint8_t *attemps);
 
 bool hash_direct(const uint8_t *in_message,
                  int in_message_len,

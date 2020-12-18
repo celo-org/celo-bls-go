@@ -198,6 +198,32 @@ func HashComposite(message []byte, extraData []byte) ([]byte, error) {
 	return hash, nil
 }
 
+func HashCRH(message []byte, hashBytes int32) ([]byte, error) {
+	messagePtr, messageLen := sliceToPtr(message)
+	var hashLen C.int
+	var hashPtr *C.uchar
+	success := C.hash_crh(messagePtr, messageLen, C.int(hashBytes), &hashPtr, &hashLen)
+	if !success {
+		return nil, GeneralError
+	}
+	hash := C.GoBytes(unsafe.Pointer(hashPtr), hashLen)
+	return hash, nil
+}
+
+func HashCompositeCIP22(message []byte, extraData []byte) ([]byte, uint8, error) {
+	messagePtr, messageLen := sliceToPtr(message)
+	extraDataPtr, extraDataLen := sliceToPtr(extraData)
+	var hashLen C.int
+	var attempts C.uchar
+	var hashPtr *C.uchar
+	success := C.hash_composite_cip22(messagePtr, messageLen, extraDataPtr, extraDataLen, &hashPtr, &hashLen, &attempts)
+	if !success {
+		return nil, 0, GeneralError
+	}
+	hash := C.GoBytes(unsafe.Pointer(hashPtr), hashLen)
+	return hash, uint8(attempts), nil
+}
+
 func CompressSignature(signature []byte) ([]byte, error) {
 	signaturePtr, signatureLen := sliceToPtr(signature)
 	var compressedLen C.int
@@ -591,4 +617,3 @@ func EncodeEpochToBytesCIP22(epochIndex uint16, round uint8, blockHash, parentHa
 func EncodeEpochToBytes(epochIndex uint16, maximumNonSigners uint32, addedPublicKeys []*PublicKey) ([]byte, error) {
 	return encodeEpochToBytes(epochIndex, maximumNonSigners, addedPublicKeys)
 }
-
