@@ -450,6 +450,22 @@ func (self *Signature) Serialize() ([]byte, error) {
 	return goBytes, nil
 }
 
+func (self *Signature) SerializeUncompressed() ([]byte, error) {
+	var bytes *C.uchar
+	var size C.int
+	success := C.serialize_signature_uncompressed(self.ptr, &bytes, &size)
+	if !success {
+		return nil, GeneralError
+	}
+
+	goBytes := C.GoBytes(unsafe.Pointer(bytes), size)
+	success = C.free_vec(bytes, size)
+	if !success {
+		return nil, GeneralError
+	}
+	return goBytes, nil
+}
+
 func (self *Signature) Destroy() bool {
 	return bool(C.destroy_signature(self.ptr))
 }
