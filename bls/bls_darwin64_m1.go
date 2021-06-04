@@ -1,4 +1,4 @@
-// +build darwin,amd64,!ios
+// +build darwin,arm64,!ios
 
 package bls
 
