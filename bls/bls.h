@@ -146,6 +146,12 @@ bool hash_crh(const uint8_t *in_message,
                     uint8_t **out_hash,
                     int *out_len);
 
+bool hash_direct_first_step(const uint8_t *in_message,
+                            int in_message_len,
+                            int hash_bytes,
+                            uint8_t **out_hash,
+                            int *out_len);
+
 bool hash_composite_cip22(const uint8_t *in_message,
                     int in_message_len,
                     const uint8_t *in_extra_data,
@@ -159,6 +165,13 @@ bool hash_direct(const uint8_t *in_message,
                  uint8_t **out_hash,
                  int *out_len,
                  bool use_pop);
+
+bool hash_direct_with_attempt(const uint8_t *in_message,
+              int in_message_len,
+              uint8_t **out_hash,
+              int *out_len,
+              int *out_attempt,
+              bool use_pop);
 
 /**
  * Initializes the lazily evaluated hashers.
@@ -174,6 +187,8 @@ bool serialize_public_key(const PublicKey *in_public_key, uint8_t **out_bytes, i
 bool serialize_public_key_uncompressed(const PublicKey *in_public_key, uint8_t **out_bytes, int *out_len);
 
 bool serialize_signature(const Signature *in_signature, uint8_t **out_bytes, int *out_len);
+
+bool serialize_signature_uncompressed(const Signature *in_signature, uint8_t **out_bytes, int *out_len);
 
 bool sign_message(const PrivateKey *in_private_key,
                   const uint8_t *in_message,

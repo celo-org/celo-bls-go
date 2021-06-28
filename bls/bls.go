@@ -185,12 +185,41 @@ func HashDirect(message []byte, usePoP bool) ([]byte, error) {
 	return hash, nil
 }
 
+func HashDirectWithAttempt(message []byte, usePoP bool) ([]byte, uint, error) {
+	messagePtr, messageLen := sliceToPtr(message)
+	var hashPtr *C.uchar
+	var hashLen C.int
+	var attempt C.int
+	success := C.hash_direct_with_attempt(messagePtr, messageLen, &hashPtr, &hashLen, &attempt, C.bool(usePoP))
+	if !success {
+		return nil, 0, GeneralError
+	}
+	hash := C.GoBytes(unsafe.Pointer(hashPtr), hashLen)
+	success = C.free_vec(hashPtr, hashLen)
+	if !success {
+		return nil, 0, GeneralError
+	}
+	return hash, uint(attempt), nil
+}
+
 func HashComposite(message []byte, extraData []byte) ([]byte, error) {
 	messagePtr, messageLen := sliceToPtr(message)
 	extraDataPtr, extraDataLen := sliceToPtr(extraData)
 	var hashLen C.int
 	var hashPtr *C.uchar
 	success := C.hash_composite(messagePtr, messageLen, extraDataPtr, extraDataLen, &hashPtr, &hashLen)
+	if !success {
+		return nil, GeneralError
+	}
+	hash := C.GoBytes(unsafe.Pointer(hashPtr), hashLen)
+	return hash, nil
+}
+
+func HashDirectFirstStep(message []byte, hashBytes int32) ([]byte, error) {
+	messagePtr, messageLen := sliceToPtr(message)
+	var hashLen C.int
+	var hashPtr *C.uchar
+	success := C.hash_direct_first_step(messagePtr, messageLen, C.int(hashBytes), &hashPtr, &hashLen)
 	if !success {
 		return nil, GeneralError
 	}
@@ -438,6 +467,22 @@ func (self *Signature) Serialize() ([]byte, error) {
 	var bytes *C.uchar
 	var size C.int
 	success := C.serialize_signature(self.ptr, &bytes, &size)
+	if !success {
+		return nil, GeneralError
+	}
+
+	goBytes := C.GoBytes(unsafe.Pointer(bytes), size)
+	success = C.free_vec(bytes, size)
+	if !success {
+		return nil, GeneralError
+	}
+	return goBytes, nil
+}
+
+func (self *Signature) SerializeUncompressed() ([]byte, error) {
+	var bytes *C.uchar
+	var size C.int
+	success := C.serialize_signature_uncompressed(self.ptr, &bytes, &size)
 	if !success {
 		return nil, GeneralError
 	}
