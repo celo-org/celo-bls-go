@@ -2,3 +2,4 @@
 *.swp
 target/
 examples/bls_example
+cmd/distribute/distribute

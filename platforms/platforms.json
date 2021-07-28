@@ -1,0 +1,7 @@
+{
+  "linux": [{
+      "name": "arm64",
+      "buildDirective": "linux,arm64",
+      "linkageDirective": "#cgo LDFLAGS: -L${SRCDIR}/../libs/aarch64-unknown-linux-gnu -lbls_snark_sys -ldl -lm"
+    }]
+}

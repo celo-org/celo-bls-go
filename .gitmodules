@@ -2,3 +2,6 @@
 [submodule "celo-bls-snark-rs"]
 	path = celo-bls-snark-rs
 	url = https://github.com/celo-org/celo-bls-snark-rs
+[submodule "celo-bls-go-linux"]
+	path = celo-bls-go-linux
+	url = https://github.com/celo-org/celo-bls-go-linux

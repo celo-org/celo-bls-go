@@ -1,0 +1,3 @@
+module github.com/celo-org/celo-bls-go-{PACKAGE}
+
+go 1.12
