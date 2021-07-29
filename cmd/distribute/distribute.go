@@ -9,12 +9,14 @@ import (
 	"strings"
 )
 
-const WRITE_PERMS = 0644
+const WRITE_PERMS = 0777
+const LIB_NAME = "libbls_snark_sys.a"
 
 type Platform struct {
 	Name string
 	BuildDirective string
 	LinkageDirective string
+	LibDirectory string
 }
 
 func main() {
@@ -27,45 +29,57 @@ func main() {
 	err = json.Unmarshal(platformsContent, &platforms)
 	panicIfError(err)
 
-	blsGoOriginalPath := path.Join(platformsDirPath, "bls.go.template")
-	blsHOriginalPath := path.Join(platformsDirPath, "bls.h")
+	for _, module := range []string{"bls", "snark"} {
+		moduleGoOriginalPath := path.Join(platformsDirPath, fmt.Sprintf("%s.go.template", module))
+		moduleHOriginalPath := path.Join(platformsDirPath, fmt.Sprintf("%s.h", module))
+		libsDirOriginalPath := path.Join(sourceDir, "libs")
 
-	reposDirPath := path.Join(platformsDirPath, "repos")
-	goModTemplate, err := ioutil.ReadFile(path.Join(platformsDirPath, "go.mod.template"))
-	panicIfError(err)
-	blsPlatformTemplate, err := ioutil.ReadFile(path.Join(platformsDirPath, "bls_platform.template"))
-	panicIfError(err)
-	for pkg, platformsForPkg := range platforms {
-		pkgBuildDirectives := []string{}
-		repoPath := path.Join(reposDirPath, fmt.Sprintf("celo-bls-go-%s", pkg))
-		goMod := strings.Replace(string(goModTemplate), "{PACKAGE}", pkg, 1)
-		goModPath := path.Join(repoPath, "go.mod")
-		err = writeFile(goModPath, []byte(goMod))
+		reposDirPath := path.Join(platformsDirPath, "repos")
+		goModTemplate, err := ioutil.ReadFile(path.Join(platformsDirPath, "go.mod.template"))
 		panicIfError(err)
-		blsDirPath := path.Join(repoPath, "bls")
-		blsGoPath := path.Join(blsDirPath, "bls.go")
-		err = copyFile(blsGoOriginalPath, blsGoPath)
+		modulePlatformTemplate, err := ioutil.ReadFile(path.Join(platformsDirPath, "platform.template"))
 		panicIfError(err)
-		blsHPath := path.Join(blsDirPath, "bls.h")
-		err = copyFile(blsHOriginalPath, blsHPath)
-		panicIfError(err)
-		for _, platform := range platformsForPkg {
-			blsPlatformPath := path.Join(blsDirPath, fmt.Sprintf("bls_%s.go", platform.Name))
-			blsPlatform := strings.Replace(string(blsPlatformTemplate), "{BUILD_DIRECTIVE}", platform.BuildDirective, 1)
-			blsPlatform = strings.Replace(blsPlatform, "{LINKAGE_DIRECTIVE}", platform.LinkageDirective, 1)
-			err = writeFile(blsPlatformPath, []byte(blsPlatform))
+		for pkg, platformsForPkg := range platforms {
+			var pkgBuildDirectives []string
+			repoPath := path.Join(reposDirPath, fmt.Sprintf("celo-bls-go-%s", pkg))
+			goMod := strings.Replace(string(goModTemplate), "{PACKAGE}", pkg, 1)
+			goModPath := path.Join(repoPath, "go.mod")
+			err = writeFile(goModPath, []byte(goMod))
 			panicIfError(err)
-			pkgBuildDirectives = append(pkgBuildDirectives, platform.BuildDirective)
-		}
-		pkgRouterTemplatePath := path.Join(platformsDirPath, "bls_router.go.template")
-		pkgRouterTemplate, err := ioutil.ReadFile(pkgRouterTemplatePath)
-		panicIfError(err)
-		pkgRouter := strings.Replace(string(pkgRouterTemplate), "{PACKAGE}", pkg, 1)
-		pkgRouter = strings.Replace(pkgRouter, "{BUILD_DIRECTIVE}", strings.Join(pkgBuildDirectives, " "), 1)
+			moduleDirPath := path.Join(repoPath, module)
+			moduleGoPath := path.Join(moduleDirPath, fmt.Sprintf("%s.go", module))
+			err = copyFile(moduleGoOriginalPath, moduleGoPath)
+			panicIfError(err)
+			moduleHPath := path.Join(moduleDirPath, fmt.Sprintf("%s.h", module))
+			err = copyFile(moduleHOriginalPath, moduleHPath)
+			panicIfError(err)
+			for _, platform := range platformsForPkg {
+				modulePlatformPath := path.Join(moduleDirPath, fmt.Sprintf("%s_%s.go", module, platform.Name))
+				modulePlatform := strings.Replace(string(modulePlatformTemplate), "{BUILD_DIRECTIVE}", platform.BuildDirective, 1)
+				modulePlatform = strings.Replace(modulePlatform, "{LINKAGE_DIRECTIVE}", platform.LinkageDirective, 1)
+				modulePlatform = strings.Replace(modulePlatform, "{MODULE}", module, 1)
+				err = writeFile(modulePlatformPath, []byte(modulePlatform))
+				panicIfError(err)
+				pkgBuildDirectives = append(pkgBuildDirectives, platform.BuildDirective)
 
-		blsPath := path.Join(sourceDir, "bls")
-		pkgRouterPath := path.Join(blsPath, fmt.Sprintf("bls_%s.go", pkg))
-		err = writeFile(pkgRouterPath, []byte(pkgRouter))
+				if module == "bls" {
+					libsDirPath := path.Join(repoPath, "libs")
+					libOriginalPath := path.Join(libsDirOriginalPath, platform.LibDirectory, LIB_NAME)
+					libPath := path.Join(libsDirPath, platform.LibDirectory, LIB_NAME)
+					err = copyFile(libOriginalPath, libPath)
+					panicIfError(err)
+				}
+			}
+			pkgRouterTemplatePath := path.Join(platformsDirPath, fmt.Sprintf("%s_router.go.template", module))
+			pkgRouterTemplate, err := ioutil.ReadFile(pkgRouterTemplatePath)
+			panicIfError(err)
+			pkgRouter := strings.Replace(string(pkgRouterTemplate), "{PACKAGE}", pkg, 1)
+			pkgRouter = strings.Replace(pkgRouter, "{BUILD_DIRECTIVE}", strings.Join(pkgBuildDirectives, " "), 1)
+
+			modulePath := path.Join(sourceDir, module)
+			pkgRouterPath := path.Join(modulePath, fmt.Sprintf("%s_%s.go", module, pkg))
+			err = writeFile(pkgRouterPath, []byte(pkgRouter))
+		}
 	}
 }
 

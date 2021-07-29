@@ -116,42 +116,36 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="0765aef0-e0ed-49b1-826a-98bf3afbb956" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/platforms/bls_platform.template" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/platforms/bls_router.go.template" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bls/bls.go" beforeDir="false" afterPath="$PROJECT_DIR$/platforms/bls.go.template" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bls/bls.h" beforeDir="false" afterPath="$PROJECT_DIR$/platforms/bls.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bls/bls_android.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/bls/bls_arm.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/bls/bls_arm64.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/bls/bls_arm7.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/bls/bls_darwin.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/bls/bls_darwin64.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/bls/bls_darwin64_m1.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/bls/bls_ios.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/bls/bls_linux386.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/bls/bls_linux64.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/bls/bls_linux_musl.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/bls/bls_mips.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/bls/bls_mips64.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/bls/bls_mips64le.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/bls/bls_mipsle.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/bls/bls_test.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/bls/bls_windows.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/bls/bls_windows64.go" beforeDir="false" />
+      <change afterPath="$PROJECT_DIR$/platforms/snark_router.go.template" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cmd/distribute/distribute.go" beforeDir="false" afterPath="$PROJECT_DIR$/cmd/distribute/distribute.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/bls_example/bls_example.go" beforeDir="false" afterPath="$PROJECT_DIR$/examples/bls_example/bls_example.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/prepare_for_contract/prepare_for_contract.go" beforeDir="false" afterPath="$PROJECT_DIR$/examples/prepare_for_contract/prepare_for_contract.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/go.mod" beforeDir="false" afterPath="$PROJECT_DIR$/go.mod" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/platforms/platforms.json" beforeDir="false" afterPath="$PROJECT_DIR$/platforms/platforms.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/snark/snark.go" beforeDir="false" afterPath="$PROJECT_DIR$/platforms/snark.go.template" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/snark/snark.h" beforeDir="false" afterPath="$PROJECT_DIR$/platforms/snark.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/platforms/bls_platform.template" beforeDir="false" afterPath="$PROJECT_DIR$/platforms/platform.template" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/platforms/repos/celo-bls-go-linux/go.mod" beforeDir="false" afterPath="$PROJECT_DIR$/platforms/repos/celo-bls-go-linux/go.mod" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/snark/snark_android.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/snark/snark_arm.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/snark/snark_arm64.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/snark/snark_arm7.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/snark/snark_darwin.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/snark/snark_darwin64.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/snark/snark_ios.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/snark/snark_linux386.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/snark/snark_linux64.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/snark/snark_linux_musl.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/snark/snark_mips.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/snark/snark_mips64.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/snark/snark_mips64le.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/snark/snark_mipsle.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/snark/snark_test.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/snark/snark_windows.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/snark/snark_windows64.go" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
-  <component name="GOROOT" path="$USER_HOME$/sdk/go1.15.5" />
+  <component name="GOROOT" path="/usr/local/go" />
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
@@ -178,10 +172,10 @@
     <property name="last_opened_file_path" value="$PROJECT_DIR$/platforms" />
   </component>
   <component name="RecentsManager">
-    <key name="CopyFile.RECENT_KEYS">
+    <key name="MoveFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/platforms" />
     </key>
-    <key name="MoveFile.RECENT_KEYS">
+    <key name="CopyFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/platforms" />
     </key>
   </component>
@@ -199,15 +193,21 @@
         </entry>
       </map>
     </option>
+    <option name="oldMeFiltersMigrated" value="true" />
   </component>
   <component name="VgoProject">
     <integration-enabled>true</integration-enabled>
   </component>
   <component name="WindowStateProjectService">
-    <state x="507" y="266" width="653" height="408" key="#com.intellij.fileTypes.FileTypeChooser" timestamp="1627501793224">
-      <screen x="72" y="27" width="1528" height="873" />
+    <state x="791" y="486" key="#GOROOT" timestamp="1627578107375">
+      <screen x="72" y="27" width="1848" height="1053" />
+    </state>
+    <state x="791" y="486" key="#GOROOT/72.27.1848.1053@72.27.1848.1053" timestamp="1627578107375" />
+    <state x="598" y="315" width="653" height="408" key="#com.intellij.fileTypes.FileTypeChooser" timestamp="1627581417019">
+      <screen x="72" y="27" width="1848" height="1053" />
     </state>
     <state x="507" y="266" width="653" height="408" key="#com.intellij.fileTypes.FileTypeChooser/72.27.1528.873@72.27.1528.873" timestamp="1627501793224" />
+    <state x="598" y="315" key="#com.intellij.fileTypes.FileTypeChooser/72.27.1848.1053@72.27.1848.1053" timestamp="1627581417019" />
     <state x="710" y="314" width="250" height="278" key="jetbrains.javascript.buildTools.run-task-popup" timestamp="1627500167302">
       <screen x="72" y="27" width="1528" height="873" />
     </state>
