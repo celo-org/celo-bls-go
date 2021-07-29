@@ -2,6 +2,12 @@
   "linux": [{
       "name": "arm64",
       "buildDirective": "linux,arm64",
-      "linkageDirective": "#cgo LDFLAGS: -L${SRCDIR}/../libs/aarch64-unknown-linux-gnu -lbls_snark_sys -ldl -lm"
-    }]
+      "linkageDirective": "-L${SRCDIR}/../libs/aarch64-unknown-linux-gnu -lbls_snark_sys -ldl -lm",
+      "libDirectory": "aarch64-unknown-linux-gnu"
+    }, {
+    "name": "amd64",
+    "buildDirective": "!android,linux,amd64,!musl",
+    "linkageDirective": "-L${SRCDIR}/../libs/x86_64-unknown-linux-gnu -lbls_snark_sys -ldl -lm -lpthread",
+    "libDirectory": "x86_64-unknown-linux-gnu"
+  }]
 }

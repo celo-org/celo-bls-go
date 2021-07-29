@@ -1,0 +1,9 @@
+// +build {BUILD_DIRECTIVE}
+
+package bls
+
+/*
+#cgo LDFLAGS: {LINKAGE_DIRECTIVE}
+*/
+import "C"
+

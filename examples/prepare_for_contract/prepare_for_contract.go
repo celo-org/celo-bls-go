@@ -3,8 +3,8 @@ package main
 import (
 	"encoding/hex"
 	"fmt"
-	"github.com/celo-org/celo-bls-go/bls"
 	"github.com/celo-org/celo-bls-go/examples/utils"
+	"github.com/celo-org/celo-bls-go/platforms"
 	"math/big"
 	"os"
 )
@@ -16,13 +16,13 @@ examples:
 */
 
 func main() {
-	bls.InitBLSCrypto()
+	platforms.InitBLSCrypto()
 	kind := os.Args[1]
 	arg := os.Args[2]
 	switch kind {
 	case "pk":
 		dec, _ := hex.DecodeString(arg)
-		key, _ := bls.DeserializePublicKey(dec)
+		key, _ := platforms.DeserializePublicKey(dec)
 		enc, _ := key.SerializeUncompressed()
 		enc1 := enc[0:utils.FIELD_SIZE]
 		enc1 = utils.ReverseAnyAndPad(enc1)
@@ -36,7 +36,7 @@ func main() {
 
 	case "sig":
 		dec, _ := hex.DecodeString(arg)
-		key, _ := bls.DeserializeSignature(dec)
+		key, _ := platforms.DeserializeSignature(dec)
 		enc, _ := key.SerializeUncompressed()
 		enc1 := enc[0:utils.FIELD_SIZE]
 		enc1 = utils.ReverseAnyAndPad(enc1)
@@ -46,13 +46,13 @@ func main() {
 
 	case "prefix":
 		msg, _ := hex.DecodeString(arg)
-		hash, prefix, _ := bls.HashDirectWithAttempt(msg, false)
+		hash, prefix, _ := platforms.HashDirectWithAttempt(msg, false)
 		fmt.Printf("Prefix: %02x, Hash: %x\n", prefix, hash)
 
 	case "hints":
 		msg, _ := hex.DecodeString(arg)
-		_, prefix, _ := bls.HashDirectWithAttempt(msg, false)
-		hash, _ := bls.HashDirectFirstStep(append([]byte{byte(prefix)}, msg...), 64)
+		_, prefix, _ := platforms.HashDirectWithAttempt(msg, false)
+		hash, _ := platforms.HashDirectFirstStep(append([]byte{byte(prefix)}, msg...), 64)
 		hash = hash[0:48]
 		hash = utils.ReverseAny(hash)
 		hash[0] &= 1
