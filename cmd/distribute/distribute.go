@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -11,12 +12,13 @@ import (
 
 const WRITE_PERMS = 0777
 const LIB_NAME = "libbls_snark_sys.a"
+const LIB_WINDOWS_NAME = "bls_snark_sys.lib"
 
 type Platform struct {
 	Name string
 	BuildDirective string
 	LinkageDirective string
-	LibDirectory string
+	LibDirectories []string
 }
 
 func main() {
@@ -63,11 +65,27 @@ func main() {
 				pkgBuildDirectives = append(pkgBuildDirectives, platform.BuildDirective)
 
 				if module == "bls" {
-					libsDirPath := path.Join(repoPath, "libs")
-					libOriginalPath := path.Join(libsDirOriginalPath, platform.LibDirectory, LIB_NAME)
-					libPath := path.Join(libsDirPath, platform.LibDirectory, LIB_NAME)
-					err = copyFile(libOriginalPath, libPath)
-					panicIfError(err)
+					for _, libDirectory := range platform.LibDirectories {
+						foundAtLeastOneLib := false
+						libsDirPath := path.Join(repoPath, "libs")
+						libOriginalPath := path.Join(libsDirOriginalPath, libDirectory, LIB_NAME)
+						if _, err := os.Stat(libOriginalPath); err == nil {
+							libPath := path.Join(libsDirPath, libDirectory, LIB_NAME)
+							err = copyFile(libOriginalPath, libPath)
+							panicIfError(err)
+							foundAtLeastOneLib = true
+						}
+						libWindowsOriginalPath := path.Join(libsDirOriginalPath, libDirectory, LIB_WINDOWS_NAME)
+						if _, err := os.Stat(libWindowsOriginalPath); err == nil {
+							libPath := path.Join(libsDirPath, libDirectory, LIB_WINDOWS_NAME)
+							err = copyFile(libWindowsOriginalPath, libPath)
+							panicIfError(err)
+							foundAtLeastOneLib = true
+						}
+						if !foundAtLeastOneLib {
+							panicIfError(errors.New(fmt.Sprintf("did not find a lib for module %s, package %s and platform %s", module, pkg, platform.Name)))
+						}
+					}
 				}
 			}
 			pkgRouterTemplatePath := path.Join(platformsDirPath, fmt.Sprintf("%s_router.go.template", module))

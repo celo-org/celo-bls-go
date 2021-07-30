@@ -1,13 +1,93 @@
 {
   "linux": [{
-      "name": "arm64",
+      "name": "linux_arm64",
       "buildDirective": "linux,arm64",
       "linkageDirective": "-L${SRCDIR}/../libs/aarch64-unknown-linux-gnu -lbls_snark_sys -ldl -lm",
-      "libDirectory": "aarch64-unknown-linux-gnu"
+      "libDirectories": ["aarch64-unknown-linux-gnu"]
     }, {
-    "name": "amd64",
+    "name": "linux_amd64",
     "buildDirective": "!android,linux,amd64,!musl",
     "linkageDirective": "-L${SRCDIR}/../libs/x86_64-unknown-linux-gnu -lbls_snark_sys -ldl -lm -lpthread",
-    "libDirectory": "x86_64-unknown-linux-gnu"
+    "libDirectories": ["x86_64-unknown-linux-gnu"]
+  }, {
+    "name": "android",
+    "buildDirective": "android",
+    "linkageDirective": "-L${SRCDIR}/../libs/aarch64-linux-android -L${SRCDIR}/../libs/armv7-linux-androideabi -L${SRCDIR}/../libs/i686-linux-android -L${SRCDIR}/../libs/x86_64-linux-android -lbls_snark_sys -ldl -lm",
+    "libDirectories": ["aarch64-linux-android", "armv7-linux-androideabi", "i686-linux-android", "x86_64-linux-android"]
+  }, {
+    "name": "linux_arm",
+    "buildDirective": "linux,arm,!arm7",
+    "linkageDirective": "-L${SRCDIR}/../libs/arm-unknown-linux-gnueabi -lbls_snark_sys -ldl -lm",
+    "libDirectories": ["arm-unknown-linux-gnueabi"]
+  }, {
+    "name": "linux_arm7",
+    "buildDirective": "arm7",
+    "linkageDirective": "-L${SRCDIR}/../libs/arm-unknown-linux-gnueabihf -lbls_snark_sys -ldl -lm",
+    "libDirectories": ["arm-unknown-linux-gnueabihf"]
+  }, {
+    "name": "darwin",
+    "buildDirective": "darwin,386,!ios",
+    "linkageDirective": "-L${SRCDIR}/../libs/i686-apple-darwin -lbls_snark_sys -ldl -lm",
+    "libDirectories": ["i686-apple-darwin"]
+  }, {
+    "name": "darwin64",
+    "buildDirective": "darwin,amd64,!ios",
+    "linkageDirective": "-L${SRCDIR}/../libs/x86_64-apple-darwin -lbls_snark_sys -ldl -lm",
+    "libDirectories": ["x86_64-apple-darwin"]
+  }, {
+    "name": "darwin64_m1",
+    "buildDirective": "darwin,arm64,!ios",
+    "linkageDirective": "-L${SRCDIR}/../libs/aarch64-apple-darwin -lbls_snark_sys -ldl -lm",
+    "libDirectories": ["aarch64-apple-darwin"]
+  }, {
+    "name": "ios",
+    "buildDirective": "ios",
+    "linkageDirective": "-L${SRCDIR}/../libs/universal -lbls_snark_sys -ldl -lm -framework Security -framework Foundation",
+    "libDirectories": ["universal"]
+  }, {
+    "name": "linux386",
+    "buildDirective": "!android,linux,386,!musl",
+    "linkageDirective": "-L${SRCDIR}/../libs/i686-unknown-linux-gnu -lbls_snark_sys -ldl -lm -lpthread",
+    "libDirectories": ["i686-unknown-linux-gnu"]
+  }, {
+    "name": "linux_musl",
+    "buildDirective": "!android,musl",
+    "linkageDirective": "-L${SRCDIR}/../libs/x86_64-unknown-linux-musl -lbls_snark_sys -ldl -lm",
+    "libDirectories": ["x86_64-unknown-linux-musl"]
+  }, {
+    "name": "mips",
+    "buildDirective": "linux,mips",
+    "linkageDirective": "-L${SRCDIR}/../libs/mips-unknown-linux-gnu -lbls_snark_sys -ldl -lm",
+    "libDirectories": ["mips-unknown-linux-gnu"]
+  }, {
+    "name": "mips64",
+    "buildDirective": "linux,mips64",
+    "linkageDirective": "-L${SRCDIR}/../libs/mips64-unknown-linux-gnuabi64 -lbls_snark_sys -ldl -lm",
+    "libDirectories": ["mips64-unknown-linux-gnuabi64"]
+  }, {
+    "name": "mips64le",
+    "buildDirective": "linux,mips64le",
+    "linkageDirective": "-L${SRCDIR}/../libs/mips64el-unknown-linux-gnuabi64 -lbls_snark_sys -ldl -lm",
+    "libDirectories": ["mips64el-unknown-linux-gnuabi64"]
+  }, {
+    "name": "mipsle",
+    "buildDirective": "linux,mipsle",
+    "linkageDirective": "-L${SRCDIR}/../libs/mipsel-unknown-linux-gnu -lbls_snark_sys -ldl -lm",
+    "libDirectories": ["mipsel-unknown-linux-gnu"]
+  }, {
+    "name": "windows",
+    "buildDirective": "windows,386",
+    "linkageDirective": "-L${SRCDIR}/../libs/i686-pc-windows-gnu -lbls_snark_sys -lm -lws2_32 -luserenv",
+    "libDirectories": ["i686-pc-windows-gnu"]
+  }, {
+    "name": "windows64",
+    "buildDirective": "windows,amd64",
+    "linkageDirective": "-L${SRCDIR}/../libs/x86_64-pc-windows-gnu -lbls_snark_sys -lm -lws2_32 -luserenv",
+    "libDirectories": ["x86_64-pc-windows-gnu"]
+  }, {
+    "name": "s390x",
+    "buildDirective": "s390x",
+    "linkageDirective": "-L${SRCDIR}/../libs/s390x-unknown-linux-gnu -lbls_snark_sys -ldl -lm -lpthread",
+    "libDirectories": ["s390x-unknown-linux-gnu"]
   }]
 }
