@@ -3,3 +3,4 @@
 target/
 examples/bls_example
 cmd/distribute/distribute
+.idea
