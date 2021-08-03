@@ -1,1 +1,7 @@
+github.com/celo-org/celo-bls-go-android v0.3.0-alpha/go.mod h1:cFgtFRH8+6x5b+EyG5SqniXY3aKd03NBSGDgITscX34=
+github.com/celo-org/celo-bls-go-ios v0.3.0-alpha/go.mod h1:eaSoMpx29YV5oF7jXVChzJpNfxeZHnAa8G4PjL5CyW0=
 github.com/celo-org/celo-bls-go-linux v0.0.0-20210728200407-ef4b2b5f9f73 h1:rX7N/GBox284lveSOBXiJTzeCSjPLcR8nRA3KAbanTo=
+github.com/celo-org/celo-bls-go-linux v0.3.0-alpha h1:q2LB1x5bZoVnLAIEG/I4LCN/YqgTwaAJSP+r2w0cl8U=
+github.com/celo-org/celo-bls-go-linux v0.3.0-alpha/go.mod h1:DVpJadg22OrxBtMb0ub6iNVdqDBL/r6EDdWVAA0bHa0=
+github.com/celo-org/celo-bls-go-macos v0.3.0-alpha/go.mod h1:mYPuRqGMVxj6yZUeL6Q6ggtP52HPBS1jz+FvBPXQ7QA=
+github.com/celo-org/celo-bls-go-other v0.3.0-alpha/go.mod h1:tNxZNfekzyT7TdYQbyNPhkfpcYtA3KCU/IKX5FNxM/U=
