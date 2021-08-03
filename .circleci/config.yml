@@ -36,6 +36,7 @@ jobs:
             cd ~/app
             go run cmd/distribute/distribute.go . ./platforms/platforms_linux.json
             echo -e "\nreplace github.com/celo-org/celo-bls-go-linux => ./platforms/repos/celo-bls-go-linux" >> go.mod
+            go get ./bls
             go test ./bls ./snark
       - run:
           name: Build and run example
@@ -44,6 +45,8 @@ jobs:
             cd ./examples/bls_example
             go build bls_example.go
             ./bls_example
+      - store_artifacts:
+          path: ~/app/go.mod
 
   go-tests:
     <<: *go_defaults
@@ -57,6 +60,7 @@ jobs:
             cd ~/app
             go run cmd/distribute/distribute.go . ./platforms/platforms.json
             echo -e "\nreplace github.com/celo-org/celo-bls-go-linux => ./platforms/repos/celo-bls-go-linux" >> go.mod
+            go get ./bls
             go test ./bls ./snark
       - run:
           name: Build and run example
