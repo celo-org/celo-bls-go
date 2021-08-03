@@ -8,7 +8,8 @@ Go module for [celo-bls-snark-rs](https://github.com/celo-org/celo-bls-snark-rs/
 * Create a new branch
 * Delete the old libs
 * Create a PR
-* The CI will now build all the libs and store them as tar.gz. artifact. Use it to update all the libs and commit them.
-* After the PR is merged, tag the version.
-
-If needed, you can remove an old tag using `./scripts/remove_tag.sh VERSION`.
+* The CI will now build all the libs and store them as tar.gz. artifact.
+* Download the tar file and extract it in the root of the repository. This will create the libs directory.
+* Run `go run cmd/distribute/distribute.go . platforms/platforms.json`. This will create all the repositories for the different packages.
+* Run `./scripts/push_and_tag.sh TAG` with a chosen `TAG`. This will create a tag in each of the repos. 
+* Merge the PR and tag the version with the same `TAG`.

@@ -51,11 +51,6 @@
 		"libDirectories": ["mipsel-unknown-linux-gnu"]
 	}],
 	"macos": [{
-		"name": "darwin",
-		"buildDirective": "darwin,386,!ios",
-		"linkageDirective": "-L${SRCDIR}/../libs/i686-apple-darwin -lbls_snark_sys -ldl -lm",
-		"libDirectories": ["i686-apple-darwin"]
-	}, {
 		"name": "darwin64",
 		"buildDirective": "darwin,amd64,!ios",
 		"linkageDirective": "-L${SRCDIR}/../libs/x86_64-apple-darwin -lbls_snark_sys -ldl -lm",
