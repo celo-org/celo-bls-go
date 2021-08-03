@@ -45,8 +45,6 @@ jobs:
             cd ./examples/bls_example
             go build bls_example.go
             ./bls_example
-      - store_artifacts:
-          path: ~/app/go.mod
 
   go-tests:
     <<: *go_defaults
@@ -69,6 +67,8 @@ jobs:
             cd ./examples/bls_example
             go build bls_example.go
             ./bls_example
+      - store_artifacts:
+          path: ~/app/go.mod
 
   build-ci-libs:
     <<: *rust_defaults
