@@ -11,7 +11,7 @@ function push_tag() {
   COMMIT=$2
 
   git push -f origin master
-  COMMIT=$(git rev-parse origin/master)
+  COMMIT=$(git rev-parse HEAD)
   git tag -d $TAG || true
   git tag $TAG $COMMIT
   git push --delete origin $TAG || true
