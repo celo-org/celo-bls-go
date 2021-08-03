@@ -10,11 +10,6 @@
     "linkageDirective": "-L${SRCDIR}/../libs/x86_64-unknown-linux-gnu -lbls_snark_sys -ldl -lm -lpthread",
     "libDirectories": ["x86_64-unknown-linux-gnu"]
   }, {
-    "name": "android",
-    "buildDirective": "android",
-    "linkageDirective": "-L${SRCDIR}/../libs/aarch64-linux-android -L${SRCDIR}/../libs/armv7-linux-androideabi -L${SRCDIR}/../libs/i686-linux-android -L${SRCDIR}/../libs/x86_64-linux-android -lbls_snark_sys -ldl -lm",
-    "libDirectories": ["aarch64-linux-android", "armv7-linux-androideabi", "i686-linux-android", "x86_64-linux-android"]
-  }, {
     "name": "linux_arm",
     "buildDirective": "linux,arm,!arm7",
     "linkageDirective": "-L${SRCDIR}/../libs/arm-unknown-linux-gnueabi -lbls_snark_sys -ldl -lm",
@@ -24,26 +19,6 @@
     "buildDirective": "arm7",
     "linkageDirective": "-L${SRCDIR}/../libs/arm-unknown-linux-gnueabihf -lbls_snark_sys -ldl -lm",
     "libDirectories": ["arm-unknown-linux-gnueabihf"]
-  }, {
-    "name": "darwin",
-    "buildDirective": "darwin,386,!ios",
-    "linkageDirective": "-L${SRCDIR}/../libs/i686-apple-darwin -lbls_snark_sys -ldl -lm",
-    "libDirectories": ["i686-apple-darwin"]
-  }, {
-    "name": "darwin64",
-    "buildDirective": "darwin,amd64,!ios",
-    "linkageDirective": "-L${SRCDIR}/../libs/x86_64-apple-darwin -lbls_snark_sys -ldl -lm",
-    "libDirectories": ["x86_64-apple-darwin"]
-  }, {
-    "name": "darwin64_m1",
-    "buildDirective": "darwin,arm64,!ios",
-    "linkageDirective": "-L${SRCDIR}/../libs/aarch64-apple-darwin -lbls_snark_sys -ldl -lm",
-    "libDirectories": ["aarch64-apple-darwin"]
-  }, {
-    "name": "ios",
-    "buildDirective": "ios",
-    "linkageDirective": "-L${SRCDIR}/../libs/universal -lbls_snark_sys -ldl -lm -framework Security -framework Foundation",
-    "libDirectories": ["universal"]
   }, {
     "name": "linux386",
     "buildDirective": "!android,linux,386,!musl",
@@ -74,7 +49,24 @@
     "buildDirective": "linux,mipsle",
     "linkageDirective": "-L${SRCDIR}/../libs/mipsel-unknown-linux-gnu -lbls_snark_sys -ldl -lm",
     "libDirectories": ["mipsel-unknown-linux-gnu"]
-  }, {
+  },],
+  "macos": [{
+    "name": "darwin",
+    "buildDirective": "darwin,386,!ios",
+    "linkageDirective": "-L${SRCDIR}/../libs/i686-apple-darwin -lbls_snark_sys -ldl -lm",
+    "libDirectories": ["i686-apple-darwin"]
+    }, {
+    "name": "darwin64",
+    "buildDirective": "darwin,amd64,!ios",
+    "linkageDirective": "-L${SRCDIR}/../libs/x86_64-apple-darwin -lbls_snark_sys -ldl -lm",
+    "libDirectories": ["x86_64-apple-darwin"]
+    }, {
+    "name": "darwin64_m1",
+    "buildDirective": "darwin,arm64,!ios",
+    "linkageDirective": "-L${SRCDIR}/../libs/aarch64-apple-darwin -lbls_snark_sys -ldl -lm",
+    "libDirectories": ["aarch64-apple-darwin"]
+  }],
+  "windows": [{
     "name": "windows",
     "buildDirective": "windows,386",
     "linkageDirective": "-L${SRCDIR}/../libs/i686-pc-windows-gnu -lbls_snark_sys -lm -lws2_32 -luserenv",
@@ -84,7 +76,22 @@
     "buildDirective": "windows,amd64",
     "linkageDirective": "-L${SRCDIR}/../libs/x86_64-pc-windows-gnu -lbls_snark_sys -lm -lws2_32 -luserenv",
     "libDirectories": ["x86_64-pc-windows-gnu"]
-  }, {
+  }],
+  "ios": [{
+    "name": "ios",
+    "buildDirective": "ios",
+    "linkageDirective": "-L${SRCDIR}/../libs/universal -lbls_snark_sys -ldl -lm -framework Security -framework Foundation",
+    "libDirectories": [
+      "universal"
+    ]
+  }],
+  "android": [{
+    "name": "android",
+    "buildDirective": "android",
+    "linkageDirective": "-L${SRCDIR}/../libs/aarch64-linux-android -L${SRCDIR}/../libs/armv7-linux-androideabi -L${SRCDIR}/../libs/i686-linux-android -L${SRCDIR}/../libs/x86_64-linux-android -lbls_snark_sys -ldl -lm",
+    "libDirectories": ["aarch64-linux-android", "armv7-linux-androideabi", "i686-linux-android", "x86_64-linux-android"]
+  }],
+  "other": [{
     "name": "s390x",
     "buildDirective": "s390x",
     "linkageDirective": "-L${SRCDIR}/../libs/s390x-unknown-linux-gnu -lbls_snark_sys -ldl -lm -lpthread",

@@ -34,6 +34,8 @@ jobs:
           name: Run Tests
           command: |
             cd ~/app
+            go run cmd/distribute/distribute.go .
+            echo "replace github.com/celo-org/celo-bls-go-macos => ./platforms/repos/celo-bls-go-macos" >> go.mod
             go test ./bls ./snark
       - run:
           name: Build and run example

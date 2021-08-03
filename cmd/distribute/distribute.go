@@ -22,7 +22,7 @@ type Platform struct {
 }
 
 func main() {
-	sourceDir, _ := os.Args[1], os.Args[2]
+	sourceDir := os.Args[1]
 	platformsDirPath := path.Join(sourceDir, "platforms")
 	platformsPath := path.Join(platformsDirPath, "platforms.json")
 	platformsContent, err := ioutil.ReadFile(platformsPath)
