@@ -5,16 +5,4 @@ examples/bls_example
 cmd/distribute/distribute
 .idea
 libs
-bls/bls_android.go
-bls/bls_ios.go
-bls/bls_other.go
-bls/bls_linux.go
-bls/bls_macos.go
-bls/bls_windows.go
-snark/snark_android.go
-snark/snark_ios.go
-snark/snark_other.go
-snark/snark_linux.go
-snark/snark_macos.go
-snark/snark_windows.go
 platforms/repos
