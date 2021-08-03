@@ -35,7 +35,7 @@ jobs:
           command: |
             cd ~/app
             go run cmd/distribute/distribute.go . ./platforms/platforms_linux.json
-            echo "\nreplace github.com/celo-org/celo-bls-go-linux => ./platforms/repos/celo-bls-go-linux" >> go.mod
+            echo -e "\nreplace github.com/celo-org/celo-bls-go-linux => ./platforms/repos/celo-bls-go-linux" >> go.mod
             go test ./bls ./snark
       - run:
           name: Build and run example
@@ -56,7 +56,7 @@ jobs:
           command: |
             cd ~/app
             go run cmd/distribute/distribute.go . ./platforms/platforms.json
-            echo "\nreplace github.com/celo-org/celo-bls-go-linux => ./platforms/repos/celo-bls-go-linux" >> go.mod
+            echo -e "\nreplace github.com/celo-org/celo-bls-go-linux => ./platforms/repos/celo-bls-go-linux" >> go.mod
             go test ./bls ./snark
       - run:
           name: Build and run example
