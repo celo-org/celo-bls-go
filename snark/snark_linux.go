@@ -1,4 +1,4 @@
-// +build linux,arm64 !android,linux,amd64,!musl
+// +build !android,linux,amd64,!musl
 
 package snark
 
@@ -8,11 +8,11 @@ import (
 
 var VerificationError = snarkRoute.VerificationError
 
-type Proof snarkRoute.Proof
+type Proof = snarkRoute.Proof
 
-type VerifyingKey snarkRoute.VerifyingKey
+type VerifyingKey = snarkRoute.VerifyingKey
 
-type EpochBlock snarkRoute.EpochBlock
+type EpochBlock = snarkRoute.EpochBlock
 
 const PUBLIC_KEY_BYTES = snarkRoute.PUBLIC_KEY_BYTES
 

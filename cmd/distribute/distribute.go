@@ -22,9 +22,8 @@ type Platform struct {
 }
 
 func main() {
-	sourceDir := os.Args[1]
+	sourceDir, platformsPath := os.Args[1], os.Args[2]
 	platformsDirPath := path.Join(sourceDir, "platforms")
-	platformsPath := path.Join(platformsDirPath, "platforms.json")
 	platformsContent, err := ioutil.ReadFile(platformsPath)
 	panicIfError(err)
 	var platforms map[string][]Platform

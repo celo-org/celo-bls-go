@@ -24,6 +24,27 @@ jobs:
           root: .
           paths: .
 
+  go-local-tests:
+    <<: *go_defaults
+    working_directory: ~/app
+    steps:
+      - attach_workspace:
+          at: ~/app
+      - run:
+          name: Run Tests
+          command: |
+            cd ~/app
+            go run cmd/distribute/distribute.go . ./platforms/platforms_macos.json
+            echo "replace github.com/celo-org/celo-bls-go-macos => ./platforms/repos/celo-bls-go-macos" >> go.mod
+            go test ./bls ./snark
+      - run:
+          name: Build and run example
+          command: |
+            cd ~/app/
+            cd ./examples/bls_example
+            go build bls_example.go
+            ./bls_example
+
   go-tests:
     <<: *go_defaults
     working_directory: ~/app
@@ -34,7 +55,7 @@ jobs:
           name: Run Tests
           command: |
             cd ~/app
-            go run cmd/distribute/distribute.go .
+            go run cmd/distribute/distribute.go . ./platforms/platforms.json
             echo "replace github.com/celo-org/celo-bls-go-macos => ./platforms/repos/celo-bls-go-macos" >> go.mod
             go test ./bls ./snark
       - run:
@@ -44,6 +65,26 @@ jobs:
             cd ./examples/bls_example
             go build bls_example.go
             ./bls_example
+
+  build-ci-libs:
+    working_directory: ~/app
+    macos:
+      xcode: 11.4.0
+    resource_class: large
+    steps:
+      - attach_workspace:
+          at: ~/app
+      - run:
+          name: Install rustup
+          command: curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+      - run:
+          name: Build release libs
+          command: |
+            git submodule update --init --recursive
+            ./scripts/release_macos.sh
+      - persist_to_workspace:
+          root: .
+          paths: .
 
   bundle-libs:
     working_directory: ~/app
@@ -72,6 +113,12 @@ workflows:
   run-tests:
     jobs:
       - checkout-repo
+      - build-ci-libs:
+          requires:
+            - checkout-repo
+      - go-local-tests:
+          requires:
+            - build-ci-libs
       - bundle-libs:
           requires:
             - checkout-repo
