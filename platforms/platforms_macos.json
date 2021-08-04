@@ -1,0 +1,8 @@
+{
+	"macos": [{
+		"name": "darwin64",
+		"buildDirective": "darwin,amd64,!ios",
+		"linkageDirective": "-L${SRCDIR}/../libs/x86_64-apple-darwin -lbls_snark_sys -ldl -lm",
+		"libDirectories": ["x86_64-apple-darwin"]
+	}]
+}

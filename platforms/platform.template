@@ -1,0 +1,9 @@
+// +build {BUILD_DIRECTIVE}
+
+package {MODULE}
+
+/*
+#cgo LDFLAGS: {LINKAGE_DIRECTIVE}
+*/
+import "C"
+
