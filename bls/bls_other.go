@@ -1,9 +1,9 @@
-// +build windows,386 windows,amd64
+// +build s390x
 
 package bls
 
 import (
-    blsRoute "github.com/celo-org/celo-bls-go-windows/bls"
+    blsRoute "github.com/celo-org/celo-bls-go-other/bls"
 )
 
 const (

@@ -1,9 +1,9 @@
-// +build ios
+// +build darwin,amd64,!ios darwin,arm64,!ios
 
 package snark
 
 import (
-    snarkRoute "github.com/celo-org/celo-bls-go-ios/snark"
+    snarkRoute "github.com/celo-org/celo-bls-go-macos/snark"
 )
 
 var VerificationError = snarkRoute.VerificationError

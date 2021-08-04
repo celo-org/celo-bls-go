@@ -2,8 +2,25 @@
 
 package snark
 
-/*
-#cgo LDFLAGS: -L${SRCDIR}/../libs/aarch64-linux-android -L${SRCDIR}/../libs/armv7-linux-androideabi -L${SRCDIR}/../libs/i686-linux-android -L${SRCDIR}/../libs/x86_64-linux-android -lbls_snark_sys -ldl -lm
-*/
-import "C"
+import (
+    snarkRoute "github.com/celo-org/celo-bls-go-android/snark"
+)
 
+var VerificationError = snarkRoute.VerificationError
+
+type Proof = snarkRoute.Proof
+
+type VerifyingKey = snarkRoute.VerifyingKey
+
+type EpochBlock = snarkRoute.EpochBlock
+
+const PUBLIC_KEY_BYTES = snarkRoute.PUBLIC_KEY_BYTES
+
+func VerifyEpochs(
+	verifyingKey VerifyingKey,
+	proof Proof,
+	firstEpoch EpochBlock,
+	lastEpoch EpochBlock,
+) error {
+    return snarkRoute.VerifyEpochs(verifyingKey , proof, firstEpoch, lastEpoch)
+}

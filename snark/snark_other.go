@@ -1,9 +1,9 @@
-// +build ios
+// +build s390x
 
 package snark
 
 import (
-    snarkRoute "github.com/celo-org/celo-bls-go-ios/snark"
+    snarkRoute "github.com/celo-org/celo-bls-go-other/snark"
 )
 
 var VerificationError = snarkRoute.VerificationError

@@ -1,9 +1,9 @@
-// +build windows,386 windows,amd64
+// +build darwin,amd64,!ios darwin,arm64,!ios
 
 package bls
 
 import (
-    blsRoute "github.com/celo-org/celo-bls-go-windows/bls"
+    blsRoute "github.com/celo-org/celo-bls-go-macos/bls"
 )
 
 const (
