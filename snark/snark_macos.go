@@ -1,9 +1,10 @@
+//go:build (darwin && amd64 && !ios) || (darwin && arm64 && !ios)
 // +build darwin,amd64,!ios darwin,arm64,!ios
 
 package snark
 
 import (
-    snarkRoute "github.com/celo-org/celo-bls-go-macos/snark"
+	snarkRoute "github.com/celo-org/celo-bls-go-macos/snark"
 )
 
 var VerificationError = snarkRoute.VerificationError
@@ -22,5 +23,5 @@ func VerifyEpochs(
 	firstEpoch EpochBlock,
 	lastEpoch EpochBlock,
 ) error {
-    return snarkRoute.VerifyEpochs(verifyingKey , proof, firstEpoch, lastEpoch)
+	return snarkRoute.VerifyEpochs(verifyingKey, proof, firstEpoch, lastEpoch)
 }

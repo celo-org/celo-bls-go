@@ -15,10 +15,10 @@ const LIB_NAME = "libbls_snark_sys.a"
 const LIB_WINDOWS_NAME = "bls_snark_sys.lib"
 
 type Platform struct {
-	Name string
-	BuildDirective string
+	Name             string
+	BuildDirective   string
 	LinkageDirective string
-	LibDirectories []string
+	LibDirectories   []string
 }
 
 func main() {
