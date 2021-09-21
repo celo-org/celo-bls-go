@@ -1,0 +1,8 @@
+{
+	"linux": [{
+		"name": "linux_amd64",
+		"buildDirective": "!android,linux,amd64,!musl",
+		"linkageDirective": "-L${SRCDIR}/../libs/x86_64-unknown-linux-gnu -lbls_snark_sys -ldl -lm -lpthread",
+		"libDirectories": ["x86_64-unknown-linux-gnu"]
+	}]
+}

@@ -24,6 +24,22 @@ jobs:
           root: .
           paths: .
 
+  go-local-tests:
+    <<: *go_defaults
+    working_directory: ~/app
+    steps:
+      - attach_workspace:
+          at: ~/app
+      - run:
+          name: Run Tests
+          command: |
+            cd ~/app
+            go mod download github.com/celo-org/celo-bls-go-linux
+            go run cmd/distribute/distribute.go . ./platforms/platforms_linux.json
+            echo -e "\nreplace github.com/celo-org/celo-bls-go-linux => ./platforms/repos/celo-bls-go-linux" >> go.mod
+            go get ./bls
+            go test ./bls ./snark
+
   go-tests:
     <<: *go_defaults
     working_directory: ~/app
@@ -34,14 +50,32 @@ jobs:
           name: Run Tests
           command: |
             cd ~/app
+            go mod download github.com/celo-org/celo-bls-go-linux
+            ./scripts/run_distribute_in_ci.sh
+            echo -e "\nreplace github.com/celo-org/celo-bls-go-linux => ./platforms/repos/celo-bls-go-linux" >> go.mod
+            go get ./bls
             go test ./bls ./snark
+      - store_artifacts:
+          path: ~/app/go.mod
+
+  build-ci-libs:
+    <<: *rust_defaults
+    working_directory: ~/app
+    resource_class: large
+    steps:
+      - attach_workspace:
+          at: ~/app
       - run:
-          name: Build and run example
+          name: Install rustup
+          command: curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+      - run:
+          name: Build release libs
           command: |
-            cd ~/app/
-            cd ./examples/bls_example
-            go build bls_example.go
-            ./bls_example
+            git submodule update --init --recursive
+            ./scripts/release_linux.sh
+      - persist_to_workspace:
+          root: .
+          paths: .
 
   bundle-libs:
     working_directory: ~/app
@@ -70,6 +104,12 @@ workflows:
   run-tests:
     jobs:
       - checkout-repo
+      - build-ci-libs:
+          requires:
+            - checkout-repo
+      - go-local-tests:
+          requires:
+            - build-ci-libs
       - bundle-libs:
           requires:
             - checkout-repo

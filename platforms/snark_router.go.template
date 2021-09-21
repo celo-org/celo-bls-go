@@ -1,9 +1,9 @@
-// +build ios
+// +build {BUILD_DIRECTIVE}
 
 package snark
 
 import (
-    snarkRoute "github.com/celo-org/celo-bls-go-ios/snark"
+    snarkRoute "github.com/celo-org/celo-bls-go-{PACKAGE}/snark"
 )
 
 var VerificationError = snarkRoute.VerificationError

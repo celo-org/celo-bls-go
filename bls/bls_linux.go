@@ -1,9 +1,9 @@
-// +build windows,386 windows,amd64
+// +build linux,arm64 !android,linux,amd64,!musl linux,arm,!arm7 arm7 !android,linux,386,!musl !android,musl linux,mips linux,mips64 linux,mips64le linux,mipsle
 
 package bls
 
 import (
-    blsRoute "github.com/celo-org/celo-bls-go-windows/bls"
+    blsRoute "github.com/celo-org/celo-bls-go-linux/bls"
 )
 
 const (
