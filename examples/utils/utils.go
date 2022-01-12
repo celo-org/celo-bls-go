@@ -7,7 +7,7 @@ const FIELD_SIZE_IN_CONTRACT = 32
 
 func ReverseAnyAndPad(s []byte) []byte {
 	s = ReverseAny(s)
-	padding := make([]byte, FIELD_SIZE_IN_CONTRACT- (len(s) %FIELD_SIZE_IN_CONTRACT))
+	padding := make([]byte, FIELD_SIZE_IN_CONTRACT-(len(s)%FIELD_SIZE_IN_CONTRACT))
 	z := append(padding, s...)
 	return z
 }

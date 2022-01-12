@@ -70,8 +70,8 @@ func VerifyEpochs(
 		index:               C.ushort(firstEpoch.Index),
 		maximum_non_signers: C.uint(firstEpoch.MaxNonSigners),
 		maximum_validators:  C.ulong(firstEpoch.MaxValidators),
-		epoch_entropy:		 firstEpochEntropyPtr,
-		parent_entropy:		 firstParentEntropyPtr,
+		epoch_entropy:       firstEpochEntropyPtr,
+		parent_entropy:      firstParentEntropyPtr,
 		pubkeys_num:         C.ulong(len(firstEpoch.PublicKeys)),
 		pubkeys:             firstPublicKeysPtr,
 	}
@@ -83,8 +83,8 @@ func VerifyEpochs(
 		index:               C.ushort(lastEpoch.Index),
 		maximum_non_signers: C.uint(lastEpoch.MaxNonSigners),
 		maximum_validators:  C.ulong(lastEpoch.MaxValidators),
-		epoch_entropy:		 lastEpochEntropyPtr,
-		parent_entropy:		 lastParentEntropyPtr,
+		epoch_entropy:       lastEpochEntropyPtr,
+		parent_entropy:      lastParentEntropyPtr,
 		pubkeys_num:         C.ulong(len(lastEpoch.PublicKeys)),
 		pubkeys:             lastPublicKeysPtr,
 	}
