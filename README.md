@@ -13,4 +13,4 @@ Go module for [celo-bls-snark-rs](https://github.com/celo-org/celo-bls-snark-rs/
 * Run `go run cmd/distribute/distribute.go . platforms/platforms.json`. This will create all the repositories for the different packages.
 * Run `./scripts/push_and_tag.sh TAG` with a chosen `TAG`. This will create a tag in each of the repos and update the go.mod.
 * Merge the PR, so master will be up to date.
-* Run `./scripts/push_and_tag_master.sh`, to push the tag to the main repository.
+* Run `./scripts/push_and_tag_master.sh`, to push the tag to the main repository
