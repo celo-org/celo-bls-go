@@ -15,13 +15,17 @@ const LIB_NAME = "libbls_snark_sys.a"
 const LIB_WINDOWS_NAME = "bls_snark_sys.lib"
 
 type Platform struct {
-	Name string
-	BuildDirective string
+	Name             string
+	BuildDirective   string
 	LinkageDirective string
-	LibDirectories []string
+	LibDirectories   []string
 }
 
 func main() {
+	// First two args should be the source directory and platforms configuration.
+	// * Source directory: Should be the repository root (i.e. $PWD if in the root).
+	// * Platforms config: A JSON file indicating which platforms to build
+	//   (e.g. $PWD/platforms/platforms.json)
 	sourceDir, platformsPath := os.Args[1], os.Args[2]
 	platformsDirPath := path.Join(sourceDir, "platforms")
 	platformsContent, err := ioutil.ReadFile(platformsPath)

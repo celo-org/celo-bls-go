@@ -87,7 +87,7 @@ func BatchVerifyEpochs(signedHeaders []*SignedBlockHeader, shouldUseCompositeHas
 }
 
 func DeserializeSignature(signatureBytes []byte) (*Signature, error) {
-    return DeserializeSignature(signatureBytes)
+    return blsRoute.DeserializeSignature(signatureBytes)
 }
 
 func AggregatePublicKeys(publicKeys []*PublicKey) (*PublicKey, error) {
