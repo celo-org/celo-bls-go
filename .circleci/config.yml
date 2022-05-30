@@ -24,7 +24,7 @@ jobs:
           root: .
           paths: .
 
-  go-local-tests:
+  go-test-linux:
     <<: *go_defaults
     working_directory: ~/app
     steps:
@@ -40,7 +40,7 @@ jobs:
             go get ./bls
             go test ./bls ./snark
 
-  go-tests:
+  go-test-all-targets:
     <<: *go_defaults
     working_directory: ~/app
     steps:
@@ -51,14 +51,14 @@ jobs:
           command: |
             cd ~/app
             go mod download github.com/celo-org/celo-bls-go-linux
-            ./scripts/run_distribute_in_ci.sh
+            go run cmd/distribute/distribute.go . ./platforms/platforms.json
             echo -e "\nreplace github.com/celo-org/celo-bls-go-linux => ./platforms/repos/celo-bls-go-linux" >> go.mod
             go get ./bls
             go test ./bls ./snark
       - store_artifacts:
           path: ~/app/go.mod
 
-  build-ci-libs:
+  build-libs-linux:
     <<: *rust_defaults
     working_directory: ~/app
     resource_class: large
@@ -77,7 +77,7 @@ jobs:
           root: .
           paths: .
 
-  bundle-libs:
+  build-and-bundle-libs-all-targets:
     working_directory: ~/app
     macos:
       xcode: 11.4.0
@@ -105,21 +105,24 @@ workflows:
     jobs:
       - checkout-repo
 
-      # build-ci-libs and go-local-tests build for linux and runs tests.
-      - build-ci-libs:
+      # build-libs-linux and go-test-linux builds for linux and runs tests.
+      - build-libs-linux:
           requires:
             - checkout-repo
-      - go-local-tests:
+      - go-test-linux:
           requires:
-            - build-ci-libs
+            - build-libs-linux
 
-      # bundle-libs and go-tests builds on all architectures.
+      # build-and-bundle-libs-all-targets and go-test-all-targets builds on all architectures,
+      # uploads the tar.gz bundled artifacts, then runs tests.
+      # Job is long-running and not needed on most commits, and so needs to be approved by a
+      # contributor before this workflow will run.
       - approval-to-bundle:
           type: approval
-      - bundle-libs:
+      - build-and-bundle-libs-all-targets:
           requires:
             - approval-to-bundle
             - checkout-repo
-      - go-tests:
+      - go-test-all-targets:
           requires:
-            - bundle-libs
+            - build-and-bundle-libs-all-targets
