@@ -6,12 +6,12 @@ defaults: &defaults
 rust_defaults: &rust_defaults
   <<: *defaults
   docker:
-    - image: circleci/rust:latest
+    - image: cimg/rust:latest
 
 go_defaults: &go_defaults
   <<: *defaults
   docker:
-    - image: circleci/golang:latest
+    - image: cimg/go:latest
 
 jobs:
   checkout-repo:
