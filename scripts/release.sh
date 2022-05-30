@@ -4,14 +4,9 @@ DIRECTORY=./libs
 if [[ -d "$DIRECTORY" ]]
 then
     echo "$DIRECTORY exists on your filesystem. Delete it and run the script again."
-    exit 0
+    exit 1
 fi
 
-if [[ ! -z $CIRCLE_SHA1 && $(git log --format=oneline -n 1 $CIRCLE_SHA1) != *"BUNDLE"* ]]; then
-  echo "Not local and commit message doesn't contain BUNDLE, building only linux."
-  source `dirname $0`/release_linux.sh
-  exit 0
-fi
 pushd celo-bls-snark-rs/crates/bls-snark-sys
 
 export RUSTFLAGS="-Ccodegen-units=1"

@@ -104,14 +104,21 @@ workflows:
   run-tests:
     jobs:
       - checkout-repo
+
+      # build-ci-libs and go-local-tests build for linux and runs tests.
       - build-ci-libs:
           requires:
             - checkout-repo
       - go-local-tests:
           requires:
             - build-ci-libs
+
+      # bundle-libs and go-tests builds on all architectures.
+      - approval-to-bundle:
+          type: approval
       - bundle-libs:
           requires:
+            - approval-to-bundle
             - checkout-repo
       - go-tests:
           requires:

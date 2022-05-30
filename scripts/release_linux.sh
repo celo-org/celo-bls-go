@@ -4,7 +4,7 @@ DIRECTORY=./libs
 if [[ -d "$DIRECTORY" ]]
 then
     echo "$DIRECTORY exists on your filesystem. Delete it and run the script again."
-    exit 0
+    exit 1
 fi
 
 pushd celo-bls-snark-rs/crates/bls-snark-sys
