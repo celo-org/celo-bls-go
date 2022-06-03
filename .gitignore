@@ -4,5 +4,8 @@ target/
 examples/bls_example
 cmd/distribute/distribute
 .idea
-libs
 platforms/repos
+
+# Ignore the built libraries
+libs
+libs.tar.gz
