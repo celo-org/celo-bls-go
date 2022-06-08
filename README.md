@@ -18,6 +18,7 @@ systems. Building and bundling of new releases can be achieved through the follo
 * Download the `libs.tar.gz` file and extract it in the root of the repository. This will create the `./libs` directory.
 * Run `go run cmd/distribute/distribute.go . platforms/platforms.json`. This will create all the repositories for the different packages.
 * Run `./scripts/push_and_tag.sh TAG` with a chosen `TAG`. This will create a tag in each of the repos and update the go.mod.
+    * Tag should be formated as a semver such as `v0.1.2`.
 * Merge the PR, so master will be up to date.
 * Run `./scripts/push_and_tag_master.sh`, to push the tag to the main repository.
 

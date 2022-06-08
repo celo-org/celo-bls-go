@@ -1,4 +1,5 @@
 #!/bin/bash -ex
+set -ex
 
 TAG=$1
 
@@ -14,7 +15,7 @@ for platform in ${platforms[@]}; do
   git init
   git add .
   git commit -m"sync master"
-  git remote add origin https://github.com/celo-org/celo-bls-go-$platform
+  git remote add origin git@github.com:celo-org/celo-bls-go-$platform.git
   git push -f origin master
   push_tag $TAG
   rm -rf .git
