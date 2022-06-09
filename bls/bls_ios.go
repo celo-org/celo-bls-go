@@ -28,7 +28,7 @@ type PrivateKey = blsRoute.PrivateKey
 type PublicKey = blsRoute.PublicKey
 type Signature = blsRoute.Signature
 type SignedBlockHeader = blsRoute.SignedBlockHeader
-type EpochEntropy  = blsRoute.EpochEntropy
+type EpochEntropy = blsRoute.EpochEntropy
 
 func InitBLSCrypto() {
     blsRoute.InitBLSCrypto()
@@ -87,7 +87,7 @@ func BatchVerifyEpochs(signedHeaders []*SignedBlockHeader, shouldUseCompositeHas
 }
 
 func DeserializeSignature(signatureBytes []byte) (*Signature, error) {
-    return DeserializeSignature(signatureBytes)
+    return blsRoute.DeserializeSignature(signatureBytes)
 }
 
 func AggregatePublicKeys(publicKeys []*PublicKey) (*PublicKey, error) {
