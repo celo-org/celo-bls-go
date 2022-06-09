@@ -3,7 +3,7 @@ set -ex
 
 TAG=$1
 
-declare -a platforms=("linux" "macos" "android" "ios" "other" )
+declare -a platforms=("linux" "macos" "android" "ios" "windows" "other" )
 
 echo -e "module github.com/celo-org/celo-bls-go\n\ngo 1.12\n\nrequire (" > go.mod
 
