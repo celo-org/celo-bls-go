@@ -7,8 +7,16 @@ import (
 	"testing"
 )
 
-func generateTestData(numEpochs int, numValidators int, composite, cip22 bool) []*SignedBlockHeader {
+type batchTestVector struct {
+	pubkeys        []*PublicKey
+	sigs           []*Signature
+	message, extra []byte
+}
+
+func generateTestData(numEpochs int, numValidators int, composite, cip22 bool) ([]*SignedBlockHeader, []*batchTestVector) {
 	var headers []*SignedBlockHeader
+	var batches []*batchTestVector
+
 	for i := 0; i < numEpochs; i++ {
 		message := []byte(fmt.Sprintf("msg_%d", i))
 		extraData := []byte(fmt.Sprintf("extra_%d", i))
@@ -38,19 +46,37 @@ func generateTestData(numEpochs int, numValidators int, composite, cip22 bool) [
 			Sig:    epoch_asig,
 		}
 		headers = append(headers, header)
+
+		batch := &batchTestVector{
+			message: message,
+			extra:   extraData,
+			pubkeys: epoch_pubkeys,
+			sigs:    epoch_sigs,
+		}
+		batches = append(batches, batch)
 	}
 
-	return headers
+	return headers, batches
 }
 
 func BenchmarkBlsBatch(b *testing.B) {
 	composite := false
 	cip22 := false
-	headers := generateTestData(10, 10, composite, cip22)
+	_, batches := generateTestData(10, 10, composite, cip22)
 
 	b.Run("individual", func(b *testing.B) {
 		for n := 0; n < b.N; n++ {
-			for _, h := range headers {
+			for _, batch := range batches {
+				epoch_asig, _ := AggregateSignatures(batch.sigs)
+				epoch_apubkey, _ := AggregatePublicKeys(batch.pubkeys)
+
+				h := &SignedBlockHeader{
+					Data:   batch.message,
+					Extra:  batch.extra,
+					Pubkey: epoch_apubkey,
+					Sig:    epoch_asig,
+				}
+
 				err := h.Pubkey.VerifySignature(h.Data, h.Extra, h.Sig, composite, cip22)
 				if err != nil {
 					panic("sig verification should not fail")
@@ -59,11 +85,45 @@ func BenchmarkBlsBatch(b *testing.B) {
 		}
 	})
 
-	b.Run("batched", func(b *testing.B) {
+	b.Run("aggregate_headers", func(b *testing.B) {
 		for n := 0; n < b.N; n++ {
+			var headers []*SignedBlockHeader
+			for _, batch := range batches {
+				epoch_asig, _ := AggregateSignatures(batch.sigs)
+				epoch_apubkey, _ := AggregatePublicKeys(batch.pubkeys)
+
+				header := &SignedBlockHeader{
+					Data:   batch.message,
+					Extra:  batch.extra,
+					Pubkey: epoch_apubkey,
+					Sig:    epoch_asig,
+				}
+				headers = append(headers, header)
+			}
+
 			err := BatchVerifyEpochs(headers, composite, cip22)
 			if err != nil {
 				panic("sig verification should not fail")
+			}
+		}
+	})
+
+	b.Run("batched_strict", func(b *testing.B) {
+		for n := 0; n < b.N; n++ {
+			containers := make([]*Batch, 0, len(batches))
+			for _, batch := range batches {
+				c := &Batch{
+					Data:    batch.message,
+					Extra:   batch.extra,
+					Pubkeys: batch.pubkeys,
+					Sigs:    batch.sigs,
+				}
+				containers = append(containers, c)
+			}
+
+			_, err := BatchVerifyStrict(containers, composite, cip22)
+			if err != nil {
+				b.Fatal("signature verification should not fail")
 			}
 		}
 	})
@@ -79,11 +139,54 @@ func TestBatchVerify(t *testing.T) {
 }
 
 func testBatchVerify(t *testing.T, composite, cip22 bool) {
-	msgs := generateTestData(10, 7, composite, cip22)
+	msgs, _ := generateTestData(10, 7, composite, cip22)
 
 	err := BatchVerifyEpochs(msgs, composite, cip22)
 	if err != nil {
 		t.Fatalf("batch verification failed, err: %s", err)
+	}
+}
+
+func TestBatchVerifyStrict(t *testing.T) {
+	InitBLSCrypto()
+
+	composite, cip22 := true, true
+	_, batches := generateTestData(10, 10, composite, cip22)
+
+	// TODO: awkward type problems here
+	containers := make([]*Batch, 0, 10)
+	for _, batch := range batches {
+		c := &Batch{
+			Data:    batch.message,
+			Extra:   batch.extra,
+			Pubkeys: batch.pubkeys,
+			Sigs:    batch.sigs,
+		}
+		containers = append(containers, c)
+	}
+
+	results, err := BatchVerifyStrict(containers, composite, cip22)
+
+	if err != nil {
+		t.Errorf("Batch verification failed: %v", results)
+	}
+
+	wrongMsgKey, _ := GeneratePrivateKey()
+	defer wrongMsgKey.Destroy()
+	wrongMsgPublic, _ := wrongMsgKey.ToPublic()
+	wrongMsgSig, _ := wrongMsgKey.SignMessage([]byte("valid sig on wrong message"), batches[0].extra, composite, cip22)
+
+	containers[0].Pubkeys = append(containers[0].Pubkeys, wrongMsgPublic)
+	containers[0].Sigs = append(containers[0].Sigs, wrongMsgSig)
+
+	results, err = BatchVerifyStrict(containers, composite, cip22)
+
+	if err == nil {
+		t.Fatalf("Batch verification succeeded when it should have failed: %v", results)
+	}
+
+	if results[0] != false {
+		t.Errorf("Wrong individual results: %v", results)
 	}
 }
 
@@ -94,7 +197,7 @@ func TestAggregatedSig(t *testing.T) {
 	publicKey, _ := privateKey.ToPublic()
 	message := []byte("test")
 	extraData := []byte("extra")
-	for _, cip22 := range []bool{ false, true } {
+	for _, cip22 := range []bool{false, true} {
 		signature, _ := privateKey.SignMessage(message, extraData, true, cip22)
 		err := publicKey.VerifySignature(message, extraData, signature, true, cip22)
 		if err != nil {
@@ -252,7 +355,7 @@ func TestAggregateSignaturesErrors(t *testing.T) {
 	defer privateKey.Destroy()
 	message := []byte("test")
 	extraData := []byte("extra")
-	for _, cip22 := range []bool{ false, true } {
+	for _, cip22 := range []bool{false, true} {
 		signature, _ := privateKey.SignMessage(message, extraData, true, cip22)
 
 		_, err := AggregateSignatures([]*Signature{signature, nil})
@@ -277,7 +380,7 @@ func TestEncodeErrors(t *testing.T) {
 	if err != EmptySliceError {
 		t.Fatalf("should have been an empty slice")
 	}
-	_, _, err = EncodeEpochToBytesCIP22(0, 5, EpochEntropy{}, EpochEntropy{}, 0,2, nil)
+	_, _, err = EncodeEpochToBytesCIP22(0, 5, EpochEntropy{}, EpochEntropy{}, 0, 2, nil)
 	if err != EmptySliceError {
 		t.Fatalf("should have been an empty slice")
 	}
@@ -302,7 +405,7 @@ func TestVerifySignatureErrors(t *testing.T) {
 	publicKey, _ := privateKey.ToPublic()
 	message := []byte("test")
 	extraData := []byte("extra")
-	for _, cip22 := range []bool{ false, true } {
+	for _, cip22 := range []bool{false, true} {
 		err := publicKey.VerifySignature(message, extraData, nil, false, cip22)
 		if err != NilPointerError {
 			t.Fatalf("should have been a nil pointer")

@@ -45,6 +45,30 @@ typedef struct {
   const Signature *sig;
 } MessageFFI;
 
+/**
+ * Pointers to the necessary data for signature verification of an epoch
+ */
+typedef struct BatchMessageFFI {
+  /**
+   * Pointer to the data which was signed
+   */
+  Buffer data;
+  /**
+   * Pointer to the extra data which was signed alongside the `data`
+   */
+  Buffer extra;
+  /**
+   * Pointers to the public keys of the epoch which signed the data/extra pair
+   */
+  const PublicKey *const *public_keys;
+  int public_keys_len;
+  /**
+   * Pointers to the signatures corresponding the public keys
+   */
+  const Signature *const *signatures;
+  int signatures_len;
+} BatchMessageFFI;
+
 bool aggregate_public_keys(const PublicKey *const *in_public_keys,
                            int in_public_keys_len,
                            PublicKey **out_public_key);
@@ -75,6 +99,22 @@ bool batch_verify_signature(const MessageFFI *messages_ptr,
                             bool should_use_composite,
                             bool should_use_cip22,
                             bool *verified);
+
+/**
+ * Receives a list of epoch batches composed of:
+ * 1. the data
+ * 1. the public keys which signed on the data
+ * 1. the signature produced by the public keys
+ *
+ * It will batch verify the signatures using deterministic random exponents tuned to achieve 128-bit security for the size of each batch.
+ * The return value is true if all batches verified successfully and false if not. 
+ * The specific batch results are returned in the out_result vector of booleans.
+ */
+bool batch_verify_strict(const struct BatchMessageFFI *in_batches_ptr,
+                         int in_batches_len,
+                         bool should_use_composite,
+                         bool should_use_cip22,
+                         bool *out_results);                            
 
 bool compress_pubkey(const uint8_t *in_pubkey,
                      int in_pubkey_len,

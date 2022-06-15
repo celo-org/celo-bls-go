@@ -84,6 +84,15 @@ type SignedBlockHeader struct {
 	Sig *Signature
 }
 
+// Batch is a container for a list of pubkey/signature pairs over a single message that is passed over FFI into Rust for batch verification.
+type Batch struct {
+	Data  []byte
+	Extra []byte
+
+	Pubkeys []*PublicKey
+	Sigs    []*Signature
+}
+
 // EpochEntropy is a string of unprediactable bytes included in the epoch SNARK data
 // to make prediction of future epoch message values infeasible.
 type EpochEntropy [EPOCHENTROPYBYTES]byte
@@ -405,6 +414,74 @@ func BatchVerifyEpochs(signedHeaders []*SignedBlockHeader, shouldUseCompositeHas
 	}
 
 	return nil
+}
+
+// BatchVerifyStrict verifies a group of signatures over a message. Unlike aggregated verification, it guarantees that each signer submitted a valid signature.
+// It returns a nil error if all verifications were successful. If there is an error, then the bool slice contains the individual results of each batch.
+func BatchVerifyStrict(batches []*Batch, shouldUseCompositeHasher, shouldUseCIP22 bool) ([]bool, error) {
+	var overallResult C.bool
+
+	batchCount := len(batches)
+	cResults := make([]C.bool, batchCount)
+
+	// Allocate a contiguous slice of memory for the pointers
+	// NB: `make([]*C.MessageFFI, msg_len) results in `cgo argument has Go pointer to Go pointer`
+	size := int(unsafe.Sizeof(C.BatchMessageFFI{}))
+	messages_ptr := C.malloc(C.size_t(size * batchCount))
+	defer C.free(messages_ptr)
+
+	// Put our data in the format the library expects
+	for i := 0; i < batchCount; i++ {
+		// convert the slices to pointers
+		data := toBuffer(batches[i].Data)
+		extra := toBuffer(batches[i].Extra)
+
+		publicKeysPtrs := []*C.struct_PublicKey{}
+		for _, pk := range batches[i].Pubkeys {
+			if pk == nil {
+				continue
+			}
+			publicKeysPtrs = append(publicKeysPtrs, pk.ptr)
+		}
+
+		signaturesPtrs := []*C.struct_Signature{}
+		for _, sig := range batches[i].Sigs {
+			if sig == nil {
+				continue
+			}
+			signaturesPtrs = append(signaturesPtrs, sig.ptr)
+		}
+
+		// Get messages_ptr[i] (need to offset by i*size to take into account the size of C.MessageFFI)
+		msg := (*C.BatchMessageFFI)(unsafe.Pointer(uintptr(messages_ptr) + uintptr(size*i)))
+		// ...and write to it
+		*msg = C.BatchMessageFFI{
+			data:            data,
+			extra:           extra,
+			public_keys:     (**C.struct_PublicKey)(unsafe.Pointer(&publicKeysPtrs[0])),
+			public_keys_len: C.int(len(publicKeysPtrs)),
+			signatures:      (**C.struct_Signature)(unsafe.Pointer(&signaturesPtrs[0])),
+			signatures_len:  C.int(len(signaturesPtrs)),
+		}
+	}
+
+	overallResult = C.batch_verify_strict(
+		(*C.BatchMessageFFI)(messages_ptr),
+		C.int(batchCount),
+		C.bool(shouldUseCompositeHasher),
+		C.bool(shouldUseCIP22),
+		(*C.bool)(unsafe.Pointer(&cResults[0])),
+	)
+
+	if !overallResult {
+		outResults := make([]bool, len(cResults))
+		for i := 0; i < len(cResults); i++ {
+			outResults[i] = bool(cResults[i])
+		}
+		return outResults, NotVerifiedError
+	}
+
+	return nil, nil
 }
 
 func (self *PublicKey) VerifySignature(message []byte, extraData []byte, signature *Signature, shouldUseCompositeHasher, shouldUseCIP22 bool) error {
