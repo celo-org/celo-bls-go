@@ -20,7 +20,7 @@ systems. Building and bundling of new releases can be achieved through the follo
 * Run `./scripts/push_and_tag.sh TAG` with a chosen `TAG`. This will create a tag in each of the repos and update the go.mod.
     * Tag should be formated as a semver such as `v0.1.2`.
 * Merge the PR, so master will be up to date.
-* Run `./scripts/push_and_tag_master.sh`, to push the tag to the main repository.
+* Run `./scripts/push_and_tag_master.sh TAG`, to push the tag to the main repository.
 
 [CircleCI]: https://app.circleci.com/pipelines/github/celo-org/celo-bls-go
 [approval]: https://circleci.com/docs/2.0/workflows/#holding-a-workflow-for-a-manual-approval
