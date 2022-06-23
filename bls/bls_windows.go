@@ -1,4 +1,3 @@
-//go:build (windows && 386) || (windows && amd64)
 // +build windows,386 windows,amd64
 
 package bls
@@ -25,6 +24,7 @@ var (
 	EmptySliceError    = blsRoute.EmptySliceError
 )
 
+type Batch = blsRoute.Batch
 type PrivateKey = blsRoute.PrivateKey
 type PublicKey = blsRoute.PublicKey
 type Signature = blsRoute.Signature
@@ -85,6 +85,10 @@ func DeserializePublicKeyCached(publicKeyBytes []byte) (*PublicKey, error) {
 
 func BatchVerifyEpochs(signedHeaders []*SignedBlockHeader, shouldUseCompositeHasher, shouldUseCIP22 bool) error {
 	return blsRoute.BatchVerifyEpochs(signedHeaders, shouldUseCompositeHasher, shouldUseCIP22)
+}
+
+func BatchVerifyStrict(batches []*Batch, shouldUseCompositeHasher, shouldUseCIP22 bool) ([]bool, error) {
+	return blsRoute.BatchVerifyStrict(batches, shouldUseCompositeHasher, shouldUseCIP22)
 }
 
 func DeserializeSignature(signatureBytes []byte) (*Signature, error) {

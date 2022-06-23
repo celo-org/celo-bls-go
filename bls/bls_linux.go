@@ -1,4 +1,3 @@
-//go:build (linux && arm64) || (!android && linux && amd64 && !musl) || (linux && arm && !arm7) || arm7 || (!android && linux && 386 && !musl) || (!android && musl) || (linux && mips) || (linux && mips64) || (linux && mips64le) || (linux && mipsle)
 // +build linux,arm64 !android,linux,amd64,!musl linux,arm,!arm7 arm7 !android,linux,386,!musl !android,musl linux,mips linux,mips64 linux,mips64le linux,mipsle
 
 package bls
@@ -25,6 +24,7 @@ var (
 	EmptySliceError    = blsRoute.EmptySliceError
 )
 
+type Batch = blsRoute.Batch
 type PrivateKey = blsRoute.PrivateKey
 type PublicKey = blsRoute.PublicKey
 type Signature = blsRoute.Signature
@@ -85,6 +85,10 @@ func DeserializePublicKeyCached(publicKeyBytes []byte) (*PublicKey, error) {
 
 func BatchVerifyEpochs(signedHeaders []*SignedBlockHeader, shouldUseCompositeHasher, shouldUseCIP22 bool) error {
 	return blsRoute.BatchVerifyEpochs(signedHeaders, shouldUseCompositeHasher, shouldUseCIP22)
+}
+
+func BatchVerifyStrict(batches []*Batch, shouldUseCompositeHasher, shouldUseCIP22 bool) ([]bool, error) {
+	return blsRoute.BatchVerifyStrict(batches, shouldUseCompositeHasher, shouldUseCIP22)
 }
 
 func DeserializeSignature(signatureBytes []byte) (*Signature, error) {
