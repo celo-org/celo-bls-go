@@ -29,26 +29,6 @@
 		"buildDirective": "!android,musl",
 		"linkageDirective": "-L${SRCDIR}/../libs/x86_64-unknown-linux-musl -lbls_snark_sys -ldl -lm",
 		"libDirectories": ["x86_64-unknown-linux-musl"]
-	}, {
-		"name": "mips",
-		"buildDirective": "linux,mips",
-		"linkageDirective": "-L${SRCDIR}/../libs/mips-unknown-linux-gnu -lbls_snark_sys -ldl -lm",
-		"libDirectories": ["mips-unknown-linux-gnu"]
-	}, {
-		"name": "mips64",
-		"buildDirective": "linux,mips64",
-		"linkageDirective": "-L${SRCDIR}/../libs/mips64-unknown-linux-gnuabi64 -lbls_snark_sys -ldl -lm",
-		"libDirectories": ["mips64-unknown-linux-gnuabi64"]
-	}, {
-		"name": "mips64le",
-		"buildDirective": "linux,mips64le",
-		"linkageDirective": "-L${SRCDIR}/../libs/mips64el-unknown-linux-gnuabi64 -lbls_snark_sys -ldl -lm",
-		"libDirectories": ["mips64el-unknown-linux-gnuabi64"]
-	}, {
-		"name": "mipsle",
-		"buildDirective": "linux,mipsle",
-		"linkageDirective": "-L${SRCDIR}/../libs/mipsel-unknown-linux-gnu -lbls_snark_sys -ldl -lm",
-		"libDirectories": ["mipsel-unknown-linux-gnu"]
 	}],
 	"macos": [{
 		"name": "darwin64",
