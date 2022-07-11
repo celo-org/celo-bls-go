@@ -92,7 +92,7 @@ func BatchVerifyStrict(batches []*Batch, shouldUseCompositeHasher, shouldUseCIP2
 }
 
 func DeserializeSignature(signatureBytes []byte) (*Signature, error) {
-	return DeserializeSignature(signatureBytes)
+	return blsRoute.DeserializeSignature(signatureBytes)
 }
 
 func AggregatePublicKeys(publicKeys []*PublicKey) (*PublicKey, error) {
