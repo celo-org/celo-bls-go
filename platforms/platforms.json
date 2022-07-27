@@ -10,11 +10,6 @@
 		"linkageDirective": "-L${SRCDIR}/../libs/x86_64-unknown-linux-gnu -lbls_snark_sys -ldl -lm -lpthread",
 		"libDirectories": ["x86_64-unknown-linux-gnu"]
 	}, {
-		"name": "linux_arm",
-		"buildDirective": "linux,arm,!arm7",
-		"linkageDirective": "-L${SRCDIR}/../libs/arm-unknown-linux-gnueabi -lbls_snark_sys -ldl -lm",
-		"libDirectories": ["arm-unknown-linux-gnueabi"]
-	}, {
 		"name": "linux_arm7",
 		"buildDirective": "arm7",
 		"linkageDirective": "-L${SRCDIR}/../libs/arm-unknown-linux-gnueabihf -lbls_snark_sys -ldl -lm",
