@@ -14,6 +14,8 @@ github.com/celo-org/celo-bls-go-linux v0.6.4 h1:3tA8unMy5/fDVo7eisW4csIvxu+H6cI2
 github.com/celo-org/celo-bls-go-linux v0.6.4/go.mod h1:E6fEQ+whLgMqEToE1e3FWf/9+ikG+wNE5ik7z5Dxgbc=
 github.com/celo-org/celo-bls-go-linux v0.6.5-0.20220728173115-0b456fe4b6a3 h1:8jwa8UckO4oofdZ4mWnxqO5+61mvKUYYXYS1JZ5aYFo=
 github.com/celo-org/celo-bls-go-linux v0.6.5-0.20220728173115-0b456fe4b6a3/go.mod h1:E6fEQ+whLgMqEToE1e3FWf/9+ikG+wNE5ik7z5Dxgbc=
+github.com/celo-org/celo-bls-go-linux v0.6.5-0.20220729160407-47e82d7c292c h1:LMK75VR1VQk0KOOL1Ht0UTsNVvI6pmyLev41H1PdslE=
+github.com/celo-org/celo-bls-go-linux v0.6.5-0.20220729160407-47e82d7c292c/go.mod h1:E6fEQ+whLgMqEToE1e3FWf/9+ikG+wNE5ik7z5Dxgbc=
 github.com/celo-org/celo-bls-go-macos v0.6.1 h1:U0y8owWd74S373SYlQmHlLyUyBO7BTwMq0L7mtcWUwY=
 github.com/celo-org/celo-bls-go-macos v0.6.1/go.mod h1:RC05VQ2cvF8vMc0tpLc7pfp8oSKrrGcI+o5LLXGequk=
 github.com/celo-org/celo-bls-go-macos v0.6.3/go.mod h1:RC05VQ2cvF8vMc0tpLc7pfp8oSKrrGcI+o5LLXGequk=
