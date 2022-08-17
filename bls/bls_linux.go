@@ -1,4 +1,4 @@
-// +build linux,arm64 !android,linux,amd64,!musl linux,arm,!arm7 arm7 !android,linux,386,!musl !android,musl
+// +build !android,linux,arm64 !android,linux,amd64,!musl !android,linux,arm,!arm7 !android,arm7 !android,linux,386,!musl !android,musl !android,linux,mips !android,linux,mips64 !android,linux,mips64le !android,linux,mipsle
 
 package bls
 
