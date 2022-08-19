@@ -1,7 +1,7 @@
 celo-bls-go
 -----------
 
-Go module for [celo-bls-snark-rs](https://github.com/celo-org/celo-bls-snark-rs/).
+ Go module for [celo-bls-snark-rs](https://github.com/celo-org/celo-bls-snark-rs/).
 
 ## Release process
 
