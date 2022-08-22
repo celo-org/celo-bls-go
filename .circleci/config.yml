@@ -80,7 +80,7 @@ jobs:
   build-and-bundle-libs-all-targets:
     working_directory: ~/app
     macos:
-      xcode: 11.4.0
+      xcode: 13.4.1
     resource_class: large
     steps:
       - attach_workspace:
