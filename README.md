@@ -3,7 +3,7 @@ celo-bls-go
 
 Go module for [celo-bls-snark-rs](https://github.com/celo-org/celo-bls-snark-rs/).
 
-## Release process
+## Release process 
 
 [CircleCI] is configured to build release libraries for all supported architectures and operating
 systems. Building and bundling of new releases can be achieved through the following process.
